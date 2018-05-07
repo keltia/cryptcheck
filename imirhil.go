@@ -22,6 +22,9 @@ const (
 
 	DefaultWait = 10 * time.Second
 	Version     = "201805"
+
+	// API version
+	MyVersion = "0.0.1"
 )
 
 // Private area
