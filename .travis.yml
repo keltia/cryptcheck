@@ -1,0 +1,15 @@
+language: go
+go:
+- "1.10.2"
+- master
+matrix:
+  allow_failures:
+    - go: master
+  fast_finish: true
+branches:
+  only:
+  - develop
+  - master
+install:
+- go get github.com/stretchr/testify/assert
+- go get github.com/stretchr/testify/require
