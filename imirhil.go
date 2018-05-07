@@ -24,10 +24,6 @@ const (
 	Version     = "201805"
 )
 
-var (
-	ctx = &Context{refresh: false}
-)
-
 // Private area
 
 func myRedirect(req *http.Request, via []*http.Request) error {
@@ -36,35 +32,38 @@ func myRedirect(req *http.Request, via []*http.Request) error {
 
 // Public functions
 
-// Init setups proxy authentication
-func Init(logLevel int, proxyauth string, refresh bool) {
-	if proxyauth != "" {
-		ctx.proxyauth = proxyauth
-	}
+// NewClient setups proxy authentication
+func NewClient(logLevel int, refresh bool) *Client {
+	c := &Client{refresh: false}
 
 	if logLevel >= 0 {
-		ctx.level = logLevel
+		c.level = logLevel
+	}
+
+	proxyauth, err := setupProxyAuth(c)
+	if err != nil {
+		c.proxyauth = proxyauth
 	}
 
 	if refresh {
-		ctx.refresh = refresh
+		c.refresh = refresh
 	}
 
-	_, trsp := setupTransport(baseURL)
-	ctx.Client = &http.Client{
+	_, trsp := c.setupTransport(baseURL)
+	c.client = &http.Client{
 		Transport:     trsp,
 		Timeout:       DefaultWait,
 		CheckRedirect: myRedirect,
 	}
-	debug("imirhil: ctx=%#v", ctx)
+	c.debug("imirhil: c=%#v", c)
+	return c
 }
 
 // GetScore retrieves the current score for tls.imirhil.fr
-func GetScore(site string) (score string) {
-	full, err := GetDetailedReport(site)
+func (c *Client) GetScore(site string) (score string, err error) {
+	full, err := c.GetDetailedReport(site)
 	if err != nil {
 		score = "Z"
-		log.Printf("Error: can not get imirhil rating: %v", err)
 		return
 	}
 	score = full.Hosts[0].Grade.Rank
@@ -72,12 +71,12 @@ func GetScore(site string) (score string) {
 }
 
 // GetDetailedReport retrieve the full data
-func GetDetailedReport(site string) (report Report, err error) {
+func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 	var body []byte
 
 	str := fmt.Sprintf("%s/%s/%s.%s", baseURL, typeURL, site, ext)
 
-	if ctx.refresh {
+	if c.refresh {
 		str = str + "/refresh"
 	}
 
@@ -87,25 +86,25 @@ func GetDetailedReport(site string) (report Report, err error) {
 		return Report{}, nil
 	}
 
-	debug("req=%#v", req)
-	debug("clt=%#v", ctx.Client)
+	c.debug("req=%#v", req)
+	c.debug("clt=%#v", c.client)
 
-	resp, err := ctx.Client.Do(req)
+	resp, err := c.client.Do(req)
 	if err != nil {
-		verbose("err=%#v", err)
+		c.verbose("err=%#v", err)
 		return
 	}
-	debug("resp=%#v", resp)
+	c.debug("resp=%#v", resp)
 	defer resp.Body.Close()
 
 	body, err = ioutil.ReadAll(resp.Body)
 	if resp.StatusCode == http.StatusOK {
 
-		debug("status OK")
+		c.debug("status OK")
 
 		if string(body) == "pending" {
 			time.Sleep(10 * time.Second)
-			resp, err = ctx.Client.Do(req)
+			resp, err = c.client.Do(req)
 			if err != nil {
 				return
 			}
@@ -113,13 +112,15 @@ func GetDetailedReport(site string) (report Report, err error) {
 	} else if resp.StatusCode == http.StatusFound {
 		str := resp.Header["Location"][0]
 
-		debug("Got 302 to %s", str)
+		c.debug("Got 302 to %s", str)
 
 		req, err = http.NewRequest("GET", str, nil)
 		if err != nil {
-			log.Printf("Cannot handle redirect: %v", err)
+			err = fmt.Errorf("Cannot handle redirect: %v", err)
+			return
 		}
-		resp, err = ctx.Client.Do(req)
+
+		resp, err = c.client.Do(req)
 		if err != nil {
 			return
 		}
