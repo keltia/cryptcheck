@@ -79,10 +79,10 @@ type Report struct {
 	Port int
 }
 
-// Context is used to store proxyauth
-type Context struct {
+// client is used to store proxyauth & other internal state
+type Client struct {
 	proxyauth string
 	level     int
-	Client    *http.Client
+	client    *http.Client
 	refresh   bool
 }
