@@ -171,7 +171,7 @@ func (c *Client) setupTransport(str string) (*http.Request, *http.Transport) {
 		return nil, nil
 	}
 	req.Header.Set("Host", myurl.Host)
-	req.Header.Add("User-Agent", "imirhil/proxyauth")
+	req.Header.Add("User-Agent", fmt.Sprintf("imirhil/%s", MyVersion))
 
 	// Get proxy URL
 	proxyURL, err := getProxy(req)
