@@ -13,53 +13,69 @@ const (
 	GoodAuth = "Basic dGVzdDp0ZXN0"
 )
 
-// ---
+// --- setupProxyAuth
 func TestSetupProxyAuthNoNetrc(t *testing.T) {
-	err := os.Setenv("NETRC", filepath.Join(".", "test/no-netrc"))
-	client := &Client{}
+    client := &Client{}
+
+    f := filepath.Join(".", "test/no-netrc")
+	err := os.Setenv("NETRC", f)
+	require.NoError(t, err)
 
 	_, err = setupProxyAuth(client)
 	assert.Error(t, err, "should be an error")
 	assert.Equal(t, ErrNoAuth, err)
+}
+
+func TestSetupProxyAuthVerboseNoNetrc(t *testing.T) {
+    client := &Client{level: 1}
+
+    f := filepath.Join(".", "test/no-netrc")
+    err := os.Setenv("NETRC", f)
+    require.NoError(t, err)
+
+    _, err = setupProxyAuth(client)
+    assert.Error(t, err, "should be an error")
+    assert.Equal(t, ErrNoAuth, err)
 }
 
 func TestSetupProxyAuth(t *testing.T) {
 	client := &Client{}
 
-	err := os.Setenv("NETRC", filepath.Join(".", "test/test-netrc"))
+    f := filepath.Join(".", "test/test-netrc")
+	err := os.Setenv("NETRC", f)
 	require.NoError(t, err)
 
-	auth, err := setupProxyAuth(client)
+    // We must ensure propre perms
+    err = os.Chmod(f, 0600)
+    require.NoError(t, err)
+
+    auth, err := setupProxyAuth(client)
 	assert.NoError(t, err, "no error")
 	assert.Equal(t, GoodAuth, auth)
-}
-
-func TestSetupProxyAuthVerboseNoNetrc(t *testing.T) {
-	client := &Client{level: 1}
-
-	err := os.Setenv("NETRC", filepath.Join(".", "test/no-netrc"))
-	assert.NoError(t, err)
-
-	_, err = setupProxyAuth(client)
-	assert.Error(t, err, "should be an error")
-	assert.Equal(t, ErrNoAuth, err)
 }
 
 func TestSetupProxyAuthVerbose(t *testing.T) {
-	client := &Client{level: 1}
+    client := &Client{level: 1}
 
-	err := os.Setenv("NETRC", filepath.Join(".", "test/test-netrc"))
-	require.NoError(t, err)
+    f := filepath.Join(".", "test/test-netrc")
+    err := os.Setenv("NETRC", f)
+    require.NoError(t, err)
 
-	auth, err := setupProxyAuth(client)
-	assert.NoError(t, err, "no error")
-	assert.Equal(t, GoodAuth, auth)
+    // We must ensure propre perms
+    err = os.Chmod(f, 0600)
+    require.NoError(t, err)
+
+    auth, err := setupProxyAuth(client)
+    assert.NoError(t, err, "no error")
+    assert.Equal(t, GoodAuth, auth)
 }
 
+// -- loadNetrc
 func TestLoadNetrcNoFile(t *testing.T) {
 	client := &Client{}
 
-	err := os.Setenv("NETRC", filepath.Join(".", "test/no-netrc"))
+    f := filepath.Join(".", "test/no-netrc")
+	err := os.Setenv("NETRC", f)
 	require.NoError(t, err)
 
 	user, password := loadNetrc(client)
