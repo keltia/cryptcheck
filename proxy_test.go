@@ -81,10 +81,17 @@ func TestLoadNetrcZero(t *testing.T) {
 func TestLoadNetrcPerms(t *testing.T) {
 	client := &Client{}
 
-	err := os.Setenv("NETRC", filepath.Join(".", "test/perms-netrc"))
+	f := filepath.Join(".", "test/perms-netrc")
+	err := os.Setenv("NETRC", f)
 	assert.NoError(t, err)
 
+	err = os.Chmod(f, 0644)
+	require.NoError(t, err)
+
 	user, password := loadNetrc(client)
+	err = os.Chmod(f, 0600)
+	require.NoError(t, err)
+
 	assert.EqualValues(t, "", user, "test user")
 	assert.EqualValues(t, "", password, "test password")
 }
@@ -92,7 +99,12 @@ func TestLoadNetrcPerms(t *testing.T) {
 func TestLoadNetrcGood(t *testing.T) {
 	client := &Client{}
 
-	err := os.Setenv("NETRC", filepath.Join(".", "test/test-netrc"))
+	f := filepath.Join(".", "test/perms-netrc")
+	err := os.Setenv("NETRC", f)
+	require.NoError(t, err)
+
+	// We must ensure propre perms
+	err = os.Chmod(f, 0600)
 	require.NoError(t, err)
 
 	user, password := loadNetrc(client)
@@ -103,7 +115,12 @@ func TestLoadNetrcGood(t *testing.T) {
 func TestLoadNetrcGoodVerbose(t *testing.T) {
 	client := &Client{level: 1}
 
-	err := os.Setenv("NETRC", filepath.Join(".", "test/test-netrc"))
+	f := filepath.Join(".", "test/perms-netrc")
+	err := os.Setenv("NETRC", f)
+	require.NoError(t, err)
+
+	// We must ensure propre perms
+	err = os.Chmod(f, 0600)
 	require.NoError(t, err)
 
 	user, password := loadNetrc(client)
