@@ -30,6 +30,12 @@ Windows:
 
 The rules of Go's `ProxyFromEnvironment` apply (`HTTP_PROXY`, `HTTPS_PROXY`, `NO_PROXY`, lowercase variants allowed).
 
+If your proxy requires you to authenticate, please create a file named `.netrc` in your HOME directory with permissions either `0400` or `0600` with the following data:
+
+    machine proxy user <username> password <password>
+    
+and it should be picked up.
+
 ## License
 
 The [BSD 2-Clause license][bsd].
