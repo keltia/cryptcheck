@@ -34,6 +34,10 @@ The rules of Go's `ProxyFromEnvironment` apply (`HTTP_PROXY`, `HTTPS_PROXY`, `NO
 
 The [BSD 2-Clause license][bsd].
 
+# Contributing
+
+This project is an open Open Source project, please read `CONTRIBUTING.md`.
+
 # Feedback
 
 We welcome pull requests, bug fixes and issue reports.
