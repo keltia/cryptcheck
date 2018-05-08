@@ -66,10 +66,10 @@ func NewClient(cnf ...Config) *Client {
 		c.proxyauth = proxyauth
 	}
 
-	_, trsp := c.setupTransport(baseURL)
+	_, trsp := c.setupTransport(c.baseurl)
 	c.client = &http.Client{
 		Transport:     trsp,
-		Timeout:       DefaultWait,
+		Timeout:       c.timeout,
 		CheckRedirect: myRedirect,
 	}
 	c.debug("imirhil: c=%#v", c)
@@ -91,7 +91,7 @@ func (c *Client) GetScore(site string) (score string, err error) {
 func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 	var body []byte
 
-	str := fmt.Sprintf("%s/%s/%s.%s", baseURL, typeURL, site, ext)
+	str := fmt.Sprintf("%s/%s/%s%s", c.baseurl, typeURL, site, ext)
 
 	if c.refresh {
 		str = str + "/refresh"
