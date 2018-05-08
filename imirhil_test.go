@@ -17,6 +17,7 @@ import (
 var (
 	cnfFalseZ  = Config{Log: 0}
 	cnfFalseNZ = Config{Log: 1}
+	cnfFalseDG = Config{Log: 2}
 	cnfTrueZ   = Config{Refresh: true}
 	cnfTrueZT5 = Config{Refresh: true, Timeout: 5}
 
@@ -103,6 +104,38 @@ func TestNewClient4(t *testing.T) {
 	assert.True(t, c.refresh)
 }
 
+func TestNewClient5(t *testing.T) {
+	f := filepath.Join(".", "test/test-netrc")
+	err := os.Setenv("NETRC", f)
+	require.NoError(t, err)
+
+	c := NewClient(cnfFalseDG)
+
+	require.NotNil(t, c)
+	require.IsType(t, (*Client)(nil), c)
+	require.NotNil(t, c.client)
+
+	assert.Equal(t, 2, c.level)
+	assert.Equal(t, DefaultWait, c.timeout)
+	assert.False(t, c.refresh)
+}
+
+func TestNewClientNoProxy(t *testing.T) {
+	f := filepath.Join(".", "test/no-netrc")
+	err := os.Setenv("NETRC", f)
+	require.NoError(t, err)
+
+	c := NewClient(cnfFalseZ)
+
+	require.NotNil(t, c)
+	require.IsType(t, (*Client)(nil), c)
+	require.NotNil(t, c.client)
+
+	assert.Equal(t, 0, c.level)
+	assert.Equal(t, DefaultWait, c.timeout)
+	assert.False(t, c.refresh)
+}
+
 func BeforeAPI(t *testing.T) {
 	if mockService == nil {
 		// new mocking server
@@ -148,6 +181,26 @@ func TestClient_GetScoreVerbose(t *testing.T) {
 	assert.Equal(t, "A+", grade)
 }
 
+func TestClient_GetScoreNoSite(t *testing.T) {
+	ct := NewClient(Config{Timeout: 10, BaseURL: "http://127.0.0.1:10000"})
+	BeforeAPI(t)
+
+	t.Logf("ct=%#v", ct)
+	grade, err := ct.GetScore("tls.imirhil.com")
+	assert.Error(t, err)
+	assert.Equal(t, "Z", grade)
+}
+
+func TestClient_GetScoreDebug(t *testing.T) {
+	ct := NewClient(Config{Timeout: 10, Log: 2, BaseURL: "http://127.0.0.1:10000"})
+	BeforeAPI(t)
+
+	t.Logf("ct=%#v", ct)
+	grade, err := ct.GetScore("tls.imirhil.fr")
+	assert.NoError(t, err)
+	assert.Equal(t, "A+", grade)
+}
+
 func TestClient_GetDetailedReport(t *testing.T) {
 	ct := NewClient(Config{BaseURL: "http://127.0.0.1:10000"})
 	BeforeAPI(t)
@@ -176,6 +229,15 @@ func TestClient_GetDetailedVerbose(t *testing.T) {
 	r, err := ct.GetDetailedReport("tls.imirhil.fr")
 	assert.NoError(t, err)
 	assert.Equal(t, jr, r)
+}
+
+func TestClient_GetDetailedNoSite(t *testing.T) {
+	ct := NewClient(Config{BaseURL: "http://127.0.0.1:10000"})
+	BeforeAPI(t)
+
+	r, err := ct.GetDetailedReport("tls.imirhil.com")
+	assert.Error(t, err)
+	assert.Equal(t, Report{}, r)
 }
 
 func TestVersion(t *testing.T) {
