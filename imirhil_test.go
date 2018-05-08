@@ -3,6 +3,8 @@ package imirhil
 import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -13,6 +15,10 @@ var (
 )
 
 func TestNewClient(t *testing.T) {
+	f := filepath.Join(".", "test/test-netrc")
+	err := os.Setenv("NETRC", f)
+	require.NoError(t, err)
+
 	c := NewClient(cnfFalseZ)
 
 	require.NotNil(t, c)
@@ -24,6 +30,10 @@ func TestNewClient(t *testing.T) {
 }
 
 func TestNewClient2(t *testing.T) {
+	f := filepath.Join(".", "test/test-netrc")
+	err := os.Setenv("NETRC", f)
+	require.NoError(t, err)
+
 	c := NewClient(cnfFalseNZ)
 
 	require.NotNil(t, c)
@@ -35,6 +45,10 @@ func TestNewClient2(t *testing.T) {
 }
 
 func TestNewClient3(t *testing.T) {
+	f := filepath.Join(".", "test/test-netrc")
+	err := os.Setenv("NETRC", f)
+	require.NoError(t, err)
+
 	c := NewClient(cnfTrueZ)
 
 	require.NotNil(t, c)
