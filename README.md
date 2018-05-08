@@ -1,8 +1,12 @@
 imirhil-go
 ============
 
+[![GitHub release](https://img.shields.io/github/release/keltia/imirhil-go.svg)](https://github.com/keltia/imirhil-go/releases) 
+[![GitHub issues](https://img.shields.io/github/issues/keltia/imirhil-go.svg)](https://github.com/keltia/imirhil-go/issues)
+[![Go Version](https://img.shields.io/badge/go-1.10-blue.svg)](https://golang.org/dl/)
 [![Build Status](https://travis-ci.org/keltia/imirhil-go.svg?branch=master)](https://travis-ci.org/keltia/imirhil-go)
 [![GoDoc](http://godoc.org/github.com/keltia/imirhil-go?status.svg)](http://godoc.org/github.com/keltia/imirhil-go)
+[![License](https://img.shields.io/pypi/l/Django.svg)](https://opensource.org/licenses/BSD-2-Clause)
 [![Go Report Card](https://goreportcard.com/badge/github.com/keltia/imirhil-go)](https://goreportcard.com/report/github.com/keltia/imirhil-go)
 
 Go wrapper for [Imirhil/cryptcheck](https://tls.imirhil.fr/) API.  Currently v1 of the API is supported, v2 is not released or documented yet.
@@ -70,7 +74,7 @@ and it should be picked up.
 
 ## License
 
-The [BSD 2-Clause license][bsd].
+The [BSD 2-Clause license](https://github.com/keltia/imirhil-go/LICENSE.md).
 
 # Contributing
 
