@@ -81,8 +81,18 @@ type Report struct {
 
 // client is used to store proxyauth & other internal state
 type Client struct {
+	baseurl   string
 	proxyauth string
 	level     int
 	client    *http.Client
+	timeout   time.Duration
 	refresh   bool
+}
+
+// Config is for giving options to NewClient
+type Config struct {
+    BaseURL string
+    Timeout time.Duration
+    Refresh bool
+    Log     int
 }

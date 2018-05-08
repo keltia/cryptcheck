@@ -20,11 +20,13 @@ const (
 	typeURL = "https/"
 	ext     = ".json"
 
-	DefaultWait = 10 * time.Second
-	Version     = "201805"
+	DefaultLog     = 0
+	DefaultRefresh = false
+	DefaultWait    = 10 * time.Second
+	Version        = "201805"
 
 	// API version
-	MyVersion = "0.0.1"
+	MyVersion = "0.1.0"
 )
 
 // Private area
@@ -36,20 +38,27 @@ func myRedirect(req *http.Request, via []*http.Request) error {
 // Public functions
 
 // NewClient setups proxy authentication
-func NewClient(logLevel int, refresh bool) *Client {
-	c := &Client{refresh: false}
+func NewClient(cnf ...Config) *Client {
+	var c *Client
 
-	if logLevel >= 0 {
-		c.level = logLevel
+	// Set default
+	if len(cnf) == 0 {
+		c = &Client{
+			baseurl: baseURL,
+			timeout: DefaultWait,
+		}
+	} else {
+		c = &Client{
+			baseurl: cnf[0].BaseURL,
+			level:   cnf[0].Log,
+			refresh: cnf[0].Refresh,
+			timeout: cnf[0].Timeout,
+		}
 	}
 
 	proxyauth, err := setupProxyAuth(c)
 	if err != nil {
 		c.proxyauth = proxyauth
-	}
-
-	if refresh {
-		c.refresh = refresh
 	}
 
 	_, trsp := c.setupTransport(baseURL)

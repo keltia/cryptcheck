@@ -1,42 +1,48 @@
 package imirhil
 
 import (
-    "testing"
-    "github.com/stretchr/testify/require"
-    "github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"testing"
+)
+
+var (
+	cnfFalseZ  = Config{Log: 0}
+	cnfFalseNZ = Config{Log: 1}
+	cnfTrueZ   = Config{Refresh: true}
 )
 
 func TestNewClient(t *testing.T) {
-    c := NewClient(0, false)
+	c := NewClient(cnfFalseZ)
 
-    require.NotNil(t, c)
-    require.IsType(t, (*Client)(nil), c)
-    require.NotNil(t, c.client)
+	require.NotNil(t, c)
+	require.IsType(t, (*Client)(nil), c)
+	require.NotNil(t, c.client)
 
-    assert.Equal(t, 0, c.level)
-    assert.False(t, c.refresh)
+	assert.Equal(t, 0, c.level)
+	assert.False(t, c.refresh)
 }
 
 func TestNewClient2(t *testing.T) {
-    c := NewClient(1, false)
+	c := NewClient(cnfFalseNZ)
 
-    require.NotNil(t, c)
-    require.IsType(t, (*Client)(nil), c)
-    require.NotNil(t, c.client)
+	require.NotNil(t, c)
+	require.IsType(t, (*Client)(nil), c)
+	require.NotNil(t, c.client)
 
-    assert.Equal(t, 1, c.level)
-    assert.False(t, c.refresh)
+	assert.Equal(t, 1, c.level)
+	assert.False(t, c.refresh)
 }
 
 func TestNewClient3(t *testing.T) {
-    c := NewClient(0, true)
+	c := NewClient(cnfTrueZ)
 
-    require.NotNil(t, c)
-    require.IsType(t, (*Client)(nil), c)
-    require.NotNil(t, c.client)
+	require.NotNil(t, c)
+	require.IsType(t, (*Client)(nil), c)
+	require.NotNil(t, c.client)
 
-    assert.Equal(t, 0, c.level)
-    assert.True(t, c.refresh)
+	assert.Equal(t, 0, c.level)
+	assert.True(t, c.refresh)
 }
 
 func TestClient_GetScore(t *testing.T) {
