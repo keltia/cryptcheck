@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	baseURL = "https://tls.imirhil.fr/"
+	baseURL = "https://tls.imirhil.fr"
 	typeURL = "https"
 	ext     = ".json"
 
