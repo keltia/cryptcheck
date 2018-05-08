@@ -120,6 +120,22 @@ func TestNewClient5(t *testing.T) {
 	assert.False(t, c.refresh)
 }
 
+func TestNewClientNoProxy(t *testing.T) {
+	f := filepath.Join(".", "test/no-netrc")
+	err := os.Setenv("NETRC", f)
+	require.NoError(t, err)
+
+	c := NewClient(cnfFalseZ)
+
+	require.NotNil(t, c)
+	require.IsType(t, (*Client)(nil), c)
+	require.NotNil(t, c.client)
+
+	assert.Equal(t, 0, c.level)
+	assert.Equal(t, DefaultWait, c.timeout)
+	assert.False(t, c.refresh)
+}
+
 func BeforeAPI(t *testing.T) {
 	if mockService == nil {
 		// new mocking server
