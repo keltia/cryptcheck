@@ -21,7 +21,7 @@ const (
 	ext     = ".json"
 
 	DefaultWait = 10 * time.Second
-	Version     = "201805"
+	APIVersion  = "201805"
 
 	// API version
 	MyVersion = "0.1.0"
@@ -149,4 +149,9 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 
 	err = json.Unmarshal(body, &report)
 	return
+}
+
+// Version returns our internal API version
+func Version() string {
+	return APIVersion
 }

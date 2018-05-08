@@ -177,3 +177,9 @@ func TestClient_GetDetailedVerbose(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, jr, r)
 }
+
+func TestVersion(t *testing.T) {
+	v := Version()
+	require.NotEmpty(t, v)
+	assert.Equal(t, "201805", v)
+}
