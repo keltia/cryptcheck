@@ -115,7 +115,7 @@ func TestLoadNetrcPerms(t *testing.T) {
 func TestLoadNetrcGood(t *testing.T) {
 	client := &Client{}
 
-	f := filepath.Join(".", "test/perms-netrc")
+	f := filepath.Join(".", "test/test-netrc")
 	err := os.Setenv("NETRC", f)
 	require.NoError(t, err)
 
@@ -131,7 +131,7 @@ func TestLoadNetrcGood(t *testing.T) {
 func TestLoadNetrcGoodVerbose(t *testing.T) {
 	client := &Client{level: 1}
 
-	f := filepath.Join(".", "test/perms-netrc")
+	f := filepath.Join(".", "test/test-netrc")
 	err := os.Setenv("NETRC", f)
 	require.NoError(t, err)
 
