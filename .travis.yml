@@ -13,3 +13,4 @@ branches:
 install:
 - go get github.com/stretchr/testify/assert
 - go get github.com/stretchr/testify/require
+- go get github.com/goware/httpmock
