@@ -50,8 +50,15 @@ func NewClient(cnf ...Config) *Client {
 			baseurl: cnf[0].BaseURL,
 			level:   cnf[0].Log,
 			refresh: cnf[0].Refresh,
-			timeout: cnf[0].Timeout,
 		}
+
+		if cnf[0].Timeout == 0 {
+			c.timeout = DefaultWait
+		} else {
+			c.timeout = time.Duration(cnf[0].Timeout) * time.Second
+		}
+
+		c.verbose("got cnf: %#v", cnf[0])
 	}
 
 	proxyauth, err := setupProxyAuth(c)
