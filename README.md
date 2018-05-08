@@ -13,6 +13,37 @@ Go wrapper for [Imirhil/cryptcheck](https://tls.imirhil.fr/) API.  Currently v1 
 
 ## API Usage
 
+As with many API wrappers, you will need to first create a client with some optional configuration, then there are two main functions:
+
+``` go
+    // Simplest way
+    c := imirhil.NewClient()
+    grade, err := c.GetScore("example.com")
+    if err != nil {
+        log.Fatalf("error: %v", err)
+    }
+    
+    
+    // With some options, timeout at 15s and debug-like verbosity
+    cnf := imirhil.Config{
+        Timeout:15, 
+        Log:2,
+    }
+    c := imirhil.NewClient(cnf)
+    report, err := c.GetDetailedReport("foo.xxx")
+    if err != nil {
+        log.Fatalf("error: %v", err)
+    }
+```
+
+OPTIONS
+
+| Option  | Type | Description |
+| ------- | ---- | ----------- |
+| Timeout | int  | time for connections (default: 10s ) |
+| Log     | int  | 1: verbose, 2: debug (default: 0) |
+| Refresh | bool | Force refresh of the sites (default: false) |
+    
 
 ## Using behind a web Proxy
 
