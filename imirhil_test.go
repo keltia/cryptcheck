@@ -181,6 +181,16 @@ func TestClient_GetScoreVerbose(t *testing.T) {
 	assert.Equal(t, "A+", grade)
 }
 
+func TestClient_GetScoreNoSite(t *testing.T) {
+	ct := NewClient(Config{Timeout: 10, BaseURL: "http://127.0.0.1:10000"})
+	BeforeAPI(t)
+
+	t.Logf("ct=%#v", ct)
+	grade, err := ct.GetScore("tls.imirhil.com")
+	assert.Error(t, err)
+	assert.Equal(t, "Z", grade)
+}
+
 func TestClient_GetScoreDebug(t *testing.T) {
 	ct := NewClient(Config{Timeout: 10, Log: 2, BaseURL: "http://127.0.0.1:10000"})
 	BeforeAPI(t)
@@ -219,6 +229,15 @@ func TestClient_GetDetailedVerbose(t *testing.T) {
 	r, err := ct.GetDetailedReport("tls.imirhil.fr")
 	assert.NoError(t, err)
 	assert.Equal(t, jr, r)
+}
+
+func TestClient_GetDetailedNoSite(t *testing.T) {
+	ct := NewClient(Config{BaseURL: "http://127.0.0.1:10000"})
+	BeforeAPI(t)
+
+	r, err := ct.GetDetailedReport("tls.imirhil.com")
+	assert.Error(t, err)
+	assert.Equal(t, Report{}, r)
 }
 
 func TestVersion(t *testing.T) {
