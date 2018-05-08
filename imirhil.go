@@ -97,6 +97,7 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 		str = str + "/refresh"
 	}
 
+	c.debug("str=%s", str)
 	req, err := http.NewRequest("GET", str, nil)
 	if err != nil {
 		log.Printf("error: req is nil: %v", err)
