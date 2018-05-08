@@ -17,7 +17,7 @@ import (
 
 const (
 	baseURL = "https://tls.imirhil.fr/"
-	typeURL = "https/"
+	typeURL = "https"
 	ext     = ".json"
 
 	DefaultWait = 10 * time.Second
