@@ -91,8 +91,8 @@ type Client struct {
 
 // Config is for giving options to NewClient
 type Config struct {
-    BaseURL string
-    Timeout time.Duration
-    Refresh bool
-    Log     int
+	BaseURL string
+	Timeout int
+	Refresh bool
+	Log     int
 }
