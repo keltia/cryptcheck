@@ -20,10 +20,8 @@ const (
 	typeURL = "https/"
 	ext     = ".json"
 
-	DefaultLog     = 0
-	DefaultRefresh = false
-	DefaultWait    = 10 * time.Second
-	Version        = "201805"
+	DefaultWait = 10 * time.Second
+	Version     = "201805"
 
 	// API version
 	MyVersion = "0.1.0"
