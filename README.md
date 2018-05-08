@@ -4,7 +4,7 @@ imirhil-go
 [![Build Status](https://travis-ci.org/keltia/imirhil-go.svg?branch=master)](https://travis-ci.org/keltia/imirhil-go)
 [![GoDoc](http://godoc.org/github.com/keltia/imirhil-go?status.svg)](http://godoc.org/github.com/keltia/imirhil-go)
 
-Go wrapper for [Imirhil/cryptcheck](https://tls.imirhil.fr/) API.  Currently v1 of the API is supported, v2 is not released or dicumented yet.
+Go wrapper for [Imirhil/cryptcheck](https://tls.imirhil.fr/) API.  Currently v1 of the API is supported, v2 is not released or documented yet.
 
 ## Requirements
 
