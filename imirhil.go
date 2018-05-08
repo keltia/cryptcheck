@@ -4,7 +4,7 @@
   This file contains the datatypes used by tls.imirhil.fr
 */
 
-package imirhil		// import "github.com/keltia/imirhil-go"
+package imirhil // import "github.com/keltia/imirhil-go"
 
 import (
 	"encoding/json"
