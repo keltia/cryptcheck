@@ -24,7 +24,7 @@ const (
 	APIVersion  = "201805"
 
 	// API version
-	MyVersion = "1.0.0"
+	MyVersion = "1.1.0"
 )
 
 // Private area
