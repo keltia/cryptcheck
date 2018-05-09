@@ -29,7 +29,7 @@ const (
 	APIVersion = "201805"
 
 	// MyVersion is the API version
-	MyVersion = "1.1.1"
+	MyVersion = "1.2.0"
 
 	// MyName is the name used for the configuration
 	MyName = "cryptcheck"
