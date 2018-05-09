@@ -71,7 +71,9 @@ If your proxy requires you to authenticate, please create a file named `.netrc` 
 
     machine proxy user <username> password <password>
     
-and it should be picked up.
+and it should be picked up. On Windows, the file will be located at
+
+    %LOCALAPPDATA%\cryptcheck\netrc
 
 ## License
 
