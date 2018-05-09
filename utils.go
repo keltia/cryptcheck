@@ -1,4 +1,4 @@
-package imirhil
+package cryptcheck
 
 import "log"
 

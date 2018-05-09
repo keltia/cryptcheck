@@ -8,7 +8,7 @@
 // 20171204 add ID to struct Report
 // 20180502 added two fields in the report top struct
 
-package imirhil
+package cryptcheck
 
 import (
 	"net/http"

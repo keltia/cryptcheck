@@ -1,4 +1,4 @@
-package imirhil
+package cryptcheck
 
 import (
 	"github.com/stretchr/testify/assert"
