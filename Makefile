@@ -4,16 +4,27 @@
 # Copyright 2018 © by Ollivier Robert <roberto@keltia.net>
 #
 
-GOBIN=   ${GOPATH}/bin
+.PATH=	cmd/getgrade:.
+GOBIN=	${GOPATH}/bin
 
-SRCS= imirhil.go proxy.go types.go utils.go
+GSRCS=	cmd/getgrade/main.go
+SRCS=	imirhil.go proxy.go types.go utils.go
 
 USRCS=	config_unix.go
 WSRCS=	config_windows.go
 
+BIN=	getgrade
+EXE=	${BIN}.exe
+
 OPTS=	-ldflags="-s -w" -v
 
-all: build
+all: build ${BIN}
+
+${BIN}: ${GSRCS} ${SRCS} ${USRCS}
+	go build ${OPTS} ./cmd/...
+
+${EXE}: ${GSRCS} ${SRCS} ${USRCS}
+	GOOS=windows go build ${OPTS} ./cmd/...
 
 build: ${SRCS} ${USRCS}
 	go build ${OPTS}
