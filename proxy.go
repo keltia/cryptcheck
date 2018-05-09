@@ -92,6 +92,11 @@ func loadNetrc(c *Client) (user, password string) {
 
 	// Now check permissions
 	st, err := fh.Stat()
+	if err != nil {
+		c.verbose("unable to stat: %v", err)
+		return "", ""
+	}
+
 	if (st.Mode() & 077) != 0 {
 		c.verbose("invalid permissions, must be 0400/0600")
 		return "", ""
