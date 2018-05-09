@@ -138,6 +138,7 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 			if err != nil {
 				return
 			}
+			c.verbose("resp was %v", resp)
 		}
 	} else if resp.StatusCode == http.StatusFound {
 		str := resp.Header["Location"][0]
@@ -154,6 +155,7 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 		if err != nil {
 			return
 		}
+		c.verbose("resp was %v", resp)
 	} else {
 		err = fmt.Errorf("did not get acceptable status code: %v body: %q", resp.Status, body)
 		return
