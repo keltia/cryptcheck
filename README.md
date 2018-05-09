@@ -1,14 +1,14 @@
-imirhil-go
-============
+cryptcheck
+==========
 
-[![GitHub release](https://img.shields.io/github/release/keltia/imirhil-go.svg)](https://github.com/keltia/imirhil-go/releases) 
-[![GitHub issues](https://img.shields.io/github/issues/keltia/imirhil-go.svg)](https://github.com/keltia/imirhil-go/issues)
+[![GitHub release](https://img.shields.io/github/release/keltia/cryptcheck.svg)](https://github.com/keltia/cryptcheck/releases) 
+[![GitHub issues](https://img.shields.io/github/issues/keltia/cryptcheck.svg)](https://github.com/keltia/cryptcheck/issues)
 [![Go Version](https://img.shields.io/badge/go-1.10-blue.svg)](https://golang.org/dl/)
-[![Build Status](https://travis-ci.org/keltia/imirhil-go.svg?branch=master)](https://travis-ci.org/keltia/imirhil-go)
-[![GoDoc](http://godoc.org/github.com/keltia/imirhil-go?status.svg)](http://godoc.org/github.com/keltia/imirhil-go)
+[![Build Status](https://travis-ci.org/keltia/cryptcheck.svg?branch=master)](https://travis-ci.org/keltia/cryptcheck)
+[![GoDoc](http://godoc.org/github.com/keltia/cryptcheck?status.svg)](http://godoc.org/github.com/keltia/cryptcheck)
 [![SerVer](http://img.shields.io/SemVer/2.0.0.png)](https://semver.org/spec/v2.0.0.html)
 [![License](https://img.shields.io/pypi/l/Django.svg)](https://opensource.org/licenses/BSD-2-Clause)
-[![Go Report Card](https://goreportcard.com/badge/github.com/keltia/imirhil-go)](https://goreportcard.com/report/github.com/keltia/imirhil-go)
+[![Go Report Card](https://goreportcard.com/badge/github.com/keltia/cryptcheck)](https://goreportcard.com/report/github.com/keltia/cryptcheck)
 
 Go wrapper for [Imirhil/cryptcheck](https://tls.imirhil.fr/) API.  Currently v1 of the API is supported, v2 is not released or documented yet.
 
@@ -22,7 +22,7 @@ As with many API wrappers, you will need to first create a client with some opti
 
 ``` go
     // Simplest way
-    c := imirhil.NewClient()
+    c := cryptcheck.NewClient()
     grade, err := c.GetScore("example.com")
     if err != nil {
         log.Fatalf("error: %v", err)
@@ -30,11 +30,11 @@ As with many API wrappers, you will need to first create a client with some opti
     
     
     // With some options, timeout at 15s and debug-like verbosity
-    cnf := imirhil.Config{
+    cnf := cryptcheck.Config{
         Timeout:15, 
         Log:2,
     }
-    c := imirhil.NewClient(cnf)
+    c := cryptcheck.NewClient(cnf)
     report, err := c.GetDetailedReport("foo.xxx")
     if err != nil {
         log.Fatalf("error: %v", err)
@@ -75,7 +75,7 @@ and it should be picked up.
 
 ## License
 
-The [BSD 2-Clause license](https://github.com/keltia/imirhil-go/LICENSE.md).
+The [BSD 2-Clause license](https://github.com/keltia/cryptcheck/LICENSE.md).
 
 # Contributing
 

@@ -4,7 +4,7 @@
   This file contains the datatypes used by tls.imirhil.fr
 */
 
-package imirhil // import "github.com/keltia/imirhil-go"
+package cryptcheck // import "github.com/keltia/cryptcheck"
 
 import (
 	"encoding/json"
@@ -24,7 +24,7 @@ const (
 	APIVersion  = "201805"
 
 	// API version
-	MyVersion = "1.0.0"
+	MyVersion = "1.1.0"
 )
 
 // Private area
@@ -72,11 +72,11 @@ func NewClient(cnf ...Config) *Client {
 		Timeout:       c.timeout,
 		CheckRedirect: myRedirect,
 	}
-	c.debug("imirhil: c=%#v", c)
+	c.debug("cryptcheck: c=%#v", c)
 	return c
 }
 
-// GetScore retrieves the current score for tls.imirhil.fr
+// GetScore retrieves the current score from tls.imirhil.fr
 func (c *Client) GetScore(site string) (score string, err error) {
 	full, err := c.GetDetailedReport(site)
 	if err != nil {
