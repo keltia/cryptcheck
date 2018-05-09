@@ -14,17 +14,11 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
 const (
 	proxyTag = "proxy"
-)
-
-var (
-	// Default location
-	dnetFile = filepath.Join(os.Getenv("HOME"), ".netrc")
 )
 
 var ErrNoAuth = fmt.Errorf("no proxy auth")
@@ -81,7 +75,7 @@ func loadNetrc(c *Client) (user, password string) {
 
 	// Allow override
 	if dnetVar == "" {
-		dnetrc = dnetFile
+		dnetrc = netrcFile
 	} else {
 		dnetrc = dnetVar
 	}
