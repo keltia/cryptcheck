@@ -21,6 +21,7 @@ const (
 	proxyTag = "proxy"
 )
 
+// ErrNoAuth is just to say we do not use auth for proxy
 var ErrNoAuth = fmt.Errorf("no proxy auth")
 
 // Private functions

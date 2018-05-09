@@ -22,8 +22,11 @@ const (
 	typeURL = "https"
 	ext     = ".json"
 
+	// Default timeout
 	DefaultWait = 10 * time.Second
-	APIVersion  = "201805"
+
+	// The cryptcheck API v1 as observed
+	APIVersion = "201805"
 
 	// MyVersion is the API version
 	MyVersion = "1.1.1"
