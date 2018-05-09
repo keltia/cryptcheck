@@ -25,8 +25,11 @@ const (
 	DefaultWait = 10 * time.Second
 	APIVersion  = "201805"
 
-	// API version
+	// MyVersion is the API version
 	MyVersion = "1.1.0"
+
+	// MyName is the name used for the configuration
+	MyName = "cryptcheck"
 )
 
 // Private area
