@@ -147,7 +147,7 @@ func BeforeAPI(t *testing.T) {
 	}
 
 	// define request->response pairs
-	requestUrl, _ := url.Parse("http://127.0.0.1:10000/https/tls.imirhil.fr.json")
+	requestURL, _ := url.Parse("http://127.0.0.1:10000/https/tls.imirhil.fr.json")
 	ft, err := ioutil.ReadFile("test/tls.imirhil.fr.json")
 	assert.NoError(t, err)
 
@@ -155,7 +155,7 @@ func BeforeAPI(t *testing.T) {
 		{
 			Request: http.Request{
 				Method: "GET",
-				URL:    requestUrl,
+				URL:    requestURL,
 			},
 			Response: httpmock.Response{
 				StatusCode: 200,
@@ -212,6 +212,8 @@ func TestClient_GetDetailedReport(t *testing.T) {
 	var jr Report
 
 	ft, err := ioutil.ReadFile("test/tls.imirhil.fr.json")
+	require.NoError(t, err)
+
 	err = json.Unmarshal(ft, &jr)
 	assert.NoError(t, err)
 
@@ -227,6 +229,8 @@ func TestClient_GetDetailedVerbose(t *testing.T) {
 	var jr Report
 
 	ft, err := ioutil.ReadFile("test/tls.imirhil.fr.json")
+	require.NoError(t, err)
+
 	err = json.Unmarshal(ft, &jr)
 	assert.NoError(t, err)
 

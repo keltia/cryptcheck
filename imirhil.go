@@ -22,11 +22,14 @@ const (
 	typeURL = "https"
 	ext     = ".json"
 
+	// DefaultWait is the timeout
 	DefaultWait = 10 * time.Second
-	APIVersion  = "201805"
+
+	// APIVersion is the cryptcheck API v1 as observed
+	APIVersion = "201805"
 
 	// MyVersion is the API version
-	MyVersion = "1.1.1"
+	MyVersion = "1.2.0"
 
 	// MyName is the name used for the configuration
 	MyName = "cryptcheck"
@@ -121,6 +124,10 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 	defer resp.Body.Close()
 
 	body, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return
+	}
+
 	if resp.StatusCode == http.StatusOK {
 
 		c.debug("status OK")
@@ -131,6 +138,7 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 			if err != nil {
 				return
 			}
+			c.verbose("resp was %v", resp)
 		}
 	} else if resp.StatusCode == http.StatusFound {
 		str := resp.Header["Location"][0]
@@ -147,6 +155,7 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 		if err != nil {
 			return
 		}
+		c.verbose("resp was %v", resp)
 	} else {
 		err = fmt.Errorf("did not get acceptable status code: %v body: %q", resp.Status, body)
 		return

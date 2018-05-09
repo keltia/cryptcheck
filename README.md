@@ -16,6 +16,10 @@ Go wrapper for [Imirhil/cryptcheck](https://tls.imirhil.fr/) API.  Currently v1 
 
 * Go >= 1.10
 
+## USAGE
+
+There is a small example program included in `cmd/getgrade` to either show the grade of a given site or JSON dump of the detailed report.
+
 ## API Usage
 
 As with many API wrappers, you will need to first create a client with some optional configuration, then there are two main functions:
