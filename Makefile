@@ -18,7 +18,7 @@ EXE=	${BIN}.exe
 
 OPTS=	-ldflags="-s -w" -v
 
-all: build ${BIN}
+all: ${BIN}
 
 ${BIN}: ${GSRCS} ${SRCS} ${USRCS}
 	go build ${OPTS} ./cmd/...
@@ -32,7 +32,7 @@ build: ${SRCS} ${USRCS}
 test: build
 	go test
 
-windows: ${SRCS} ${WSRCS}
+windows: ${EXE}
 	GOOS=windows go build ${OPTS} .
 
 install:
@@ -42,7 +42,9 @@ lint:
 	gometalinter .
 
 clean:
-	go clean
+	go clean .
+	go clean ./cmd/...
+	-rm -f ${BIN} ${EXE}
 
 push:
 	git push --all
