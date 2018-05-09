@@ -20,6 +20,10 @@ Go wrapper for [Imirhil/cryptcheck](https://tls.imirhil.fr/) API.  Currently v1 
 
 There is a small example program included in `cmd/getgrade` to either show the grade of a given site or JSON dump of the detailed report.
 
+You can use `jq` to display the output of `getgrade -d <site>` in a colorised way:
+
+    getgrade -d tls.imirhil.fr | jq .
+
 ## API Usage
 
 As with many API wrappers, you will need to first create a client with some optional configuration, then there are two main functions:
