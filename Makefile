@@ -36,7 +36,7 @@ windows: ${EXE}
 	GOOS=windows go build ${OPTS} .
 
 install:
-	go install ${OPTS}
+	go install ${OPTS} ./cmd/...
 
 lint:
 	gometalinter .
