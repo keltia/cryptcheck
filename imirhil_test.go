@@ -212,6 +212,8 @@ func TestClient_GetDetailedReport(t *testing.T) {
 	var jr Report
 
 	ft, err := ioutil.ReadFile("test/tls.imirhil.fr.json")
+	require.NoError(t, err)
+
 	err = json.Unmarshal(ft, &jr)
 	assert.NoError(t, err)
 
@@ -227,6 +229,8 @@ func TestClient_GetDetailedVerbose(t *testing.T) {
 	var jr Report
 
 	ft, err := ioutil.ReadFile("test/tls.imirhil.fr.json")
+	require.NoError(t, err)
+
 	err = json.Unmarshal(ft, &jr)
 	assert.NoError(t, err)
 

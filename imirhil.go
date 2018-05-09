@@ -121,6 +121,10 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 	defer resp.Body.Close()
 
 	body, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return
+	}
+
 	if resp.StatusCode == http.StatusOK {
 
 		c.debug("status OK")
