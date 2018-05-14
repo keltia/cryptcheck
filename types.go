@@ -81,7 +81,7 @@ type Report struct {
 	Port int
 }
 
-// client is used to store proxyauth & other internal state
+// Client is used to store proxyauth & other internal state
 type Client struct {
 	baseurl   string
 	proxyauth string

@@ -21,17 +21,18 @@ const (
 	proxyTag = "proxy"
 )
 
+// ErrNoAuth is just to say we do not use auth for proxy
 var ErrNoAuth = fmt.Errorf("no proxy auth")
 
 // Private functions
 
-func getProxy(req *http.Request) (uri *url.URL, err error) {
-	uri, err = http.ProxyFromEnvironment(req)
+func getProxy(c *Client, req *http.Request) (uri *url.URL) {
+	uri, err := http.ProxyFromEnvironment(req)
 	if err != nil {
-		log.Printf("no proxy in environment")
+		c.verbose("no proxy in environment")
 		uri = &url.URL{}
 	} else if uri == nil {
-		log.Println("No proxy configured or url excluded")
+		c.verbose("No proxy configured or url excluded")
 	}
 	return
 }
@@ -92,6 +93,11 @@ func loadNetrc(c *Client) (user, password string) {
 
 	// Now check permissions
 	st, err := fh.Stat()
+	if err != nil {
+		c.verbose("unable to stat: %v", err)
+		return "", ""
+	}
+
 	if (st.Mode() & 077) != 0 {
 		c.verbose("invalid permissions, must be 0400/0600")
 		return "", ""
@@ -168,7 +174,7 @@ func (c *Client) setupTransport(str string) (*http.Request, *http.Transport) {
 	req.Header.Add("User-Agent", fmt.Sprintf("cryptcheck/%s", MyVersion))
 
 	// Get proxy URL
-	proxyURL, err := getProxy(req)
+	proxyURL := getProxy(c, req)
 	if c.proxyauth != "" {
 		req.Header.Add("Proxy-Authorization", c.proxyauth)
 	}
