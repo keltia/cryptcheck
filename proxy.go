@@ -102,11 +102,7 @@ func loadNetrc(c *Client) (user, password string) {
 	return
 }
 
-/*
-   Format:
-   machine proxy|default login <user> password <pass>
-*/
-// parseDbrc loads the file format historically defined by DBI::Dbrc
+// parseNetrc parses the well-known netrc(4) format used by ftp(1)
 func parseNetrc(c *Client, r io.Reader) (user, password string) {
 	c.verbose("found netrc")
 
