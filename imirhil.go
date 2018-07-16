@@ -29,7 +29,7 @@ const (
 	APIVersion = "201805"
 
 	// MyVersion is the API version
-	MyVersion = "1.2.0"
+	MyVersion = "1.2.1"
 
 	// MyName is the name used for the configuration
 	MyName = "cryptcheck"
@@ -64,6 +64,11 @@ func NewClient(cnf ...Config) *Client {
 			c.timeout = DefaultWait
 		} else {
 			c.timeout = time.Duration(cnf[0].Timeout) * time.Second
+		}
+
+		// Ensure we have the API endpoint right
+		if c.baseurl == "" {
+			c.baseurl = baseURL
 		}
 
 		c.verbose("got cnf: %#v", cnf[0])
