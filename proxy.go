@@ -103,7 +103,7 @@ func loadNetrc(c *Client) (user, password string) {
 		return "", ""
 	}
 
-	c.verbose("now parsing")
+	c.debug("now parsing")
 	user, password = parseNetrc(c, fh)
 	return
 }
@@ -146,7 +146,7 @@ func parseNetrc(c *Client, r io.Reader) (user, password string) {
 			if flds[2] == "login" && flds[4] == "password" {
 				user = flds[3]
 				password = flds[5]
-				c.verbose("got %s/default entry for user %s", proxyTag, user)
+				c.debug("got %s/default entry for user %s", proxyTag, user)
 			}
 			break
 		}
