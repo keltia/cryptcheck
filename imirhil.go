@@ -72,7 +72,7 @@ func NewClient(cnf ...Config) *Client {
 			c.baseurl = baseURL
 		}
 
-		c.verbose("got cnf: %#v", cnf[0])
+		c.debug("got cnf: %#v", cnf[0])
 	}
 
 	proxyauth, err := setupProxyAuth(c)
