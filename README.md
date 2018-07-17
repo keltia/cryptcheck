@@ -60,6 +60,8 @@ OPTIONS
 
 ## Using behind a web Proxy
 
+Dependency: proxy support is provided by my `github.com/keltia/proxy` module.
+
 UNIX/Linux:
 
 ```
