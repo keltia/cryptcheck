@@ -120,7 +120,15 @@ func parseNetrc(c *Client, r io.Reader) (user, password string) {
 		}
 
 		flds := strings.Split(line, " ")
-		c.verbose("%s: %d fields", line, len(flds))
+
+		// Do not display password even with debug
+		if c.level >= 2 {
+			var nflds []string
+
+			copy(nflds, flds)
+			nflds[5] = "********"
+			c.debug("%s: %d fields", strings.Join(nflds, " "), len(nflds))
+		}
 
 		if flds[0] != "machine" {
 			c.verbose("machine is not the first word")
