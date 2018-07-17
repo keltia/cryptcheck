@@ -11,6 +11,7 @@ package cryptcheck // import "github.com/keltia/cryptcheck"
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/keltia/proxy"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -75,12 +76,12 @@ func NewClient(cnf ...Config) *Client {
 		c.debug("got cnf: %#v", cnf[0])
 	}
 
-	proxyauth, err := setupProxyAuth(c)
+	proxyauth, err := proxy.SetupProxyAuth()
 	if err != nil {
 		c.proxyauth = proxyauth
 	}
 
-	_, trsp := c.setupTransport(c.baseurl)
+	_, trsp := proxy.SetupTransport(c.baseurl)
 	c.client = &http.Client{
 		Transport:     trsp,
 		Timeout:       c.timeout,
