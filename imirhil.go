@@ -52,6 +52,7 @@ func NewClient(cnf ...Config) *Client {
 		c = &Client{
 			baseurl: baseURL,
 			timeout: DefaultWait,
+			level:   0,
 		}
 	} else {
 		c = &Client{
