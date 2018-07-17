@@ -8,7 +8,7 @@
 GOBIN=	${GOPATH}/bin
 
 GSRCS=	cmd/getgrade/main.go
-SRCS=	imirhil.go proxy.go types.go utils.go
+SRCS=	imirhil.go types.go utils.go
 
 USRCS=	config_unix.go
 WSRCS=	config_windows.go
