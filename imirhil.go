@@ -76,10 +76,8 @@ func NewClient(cnf ...Config) *Client {
 		c.debug("got cnf: %#v", cnf[0])
 	}
 
-	proxyauth, err := proxy.SetupProxyAuth()
-	if err != nil {
-		c.proxyauth = proxyauth
-	}
+	// for informational purposes, ErrNoAuth is a ignorable error
+	c.proxyauth, _ = proxy.SetupProxyAuth()
 
 	_, trsp := proxy.SetupTransport(c.baseurl)
 	c.client = &http.Client{
