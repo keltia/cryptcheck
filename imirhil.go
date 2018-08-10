@@ -30,7 +30,7 @@ const (
 	APIVersion = "201805"
 
 	// MyVersion is the API version
-	MyVersion = "1.3.0"
+	MyVersion = "1.3.1"
 
 	// MyName is the name used for the configuration
 	MyName = "cryptcheck"
@@ -76,10 +76,8 @@ func NewClient(cnf ...Config) *Client {
 		c.debug("got cnf: %#v", cnf[0])
 	}
 
-	proxyauth, err := proxy.SetupProxyAuth()
-	if err != nil {
-		c.proxyauth = proxyauth
-	}
+	// for informational purposes, ErrNoAuth is a ignorable error
+	c.proxyauth, _ = proxy.SetupProxyAuth()
 
 	_, trsp := proxy.SetupTransport(c.baseurl)
 	c.client = &http.Client{
