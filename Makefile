@@ -29,6 +29,8 @@ ${EXE}: ${GSRCS} ${SRCS} ${USRCS}
 build: ${SRCS} ${USRCS}
 	${GO} build ${OPTS}
 
+windows: ${EXE}
+
 test: build
 	${GO} test .
 
