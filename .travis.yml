@@ -1,6 +1,6 @@
 language: go
 go:
-- "1.10.2"
+- "1.10.x"
 - master
 matrix:
   allow_failures:
@@ -16,6 +16,6 @@ install:
 - go get github.com/goware/httpmock
 - go get github.com/keltia/proxy
 script:
-  - make
-  - make test
-  - make windows
+  - env GO111MODULE=on make
+  - env GO111MODULE=on make test
+  - env GO111MODULE=on make windows
