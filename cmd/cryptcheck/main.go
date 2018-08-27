@@ -18,6 +18,7 @@ import (
 )
 
 var (
+	fDebug    bool
 	fDetailed bool
 
 	// MyName is the application name
@@ -25,6 +26,7 @@ var (
 )
 
 func init() {
+	flag.BoolVar(&fDebug, "D", false, "Debug mode")
 	flag.BoolVar(&fDetailed, "d", false, "Get a detailed report")
 	flag.Parse()
 
@@ -34,10 +36,18 @@ func init() {
 }
 
 func main() {
+	var client *cryptcheck.Client
+
 	site := flag.Arg(0)
 
+	if fDebug {
+		client = cryptcheck.NewClient(cryptcheck.Config{Log: 2})
+	} else {
+		client = cryptcheck.NewClient()
+	}
+
 	if fDetailed {
-		report, err := cryptcheck.NewClient().GetDetailedReport(site)
+		report, err := client.GetDetailedReport(site)
 		if err != nil {
 			log.Fatalf("impossible to get grade for '%s'\n", site)
 		}
@@ -48,9 +58,9 @@ func main() {
 	} else {
 		fmt.Printf("%s Wrapper: %s API version %s\n\n",
 			MyName, cryptcheck.MyVersion, cryptcheck.APIVersion)
-		grade, err := cryptcheck.NewClient().GetScore(site)
+		grade, err := client.GetScore(site)
 		if err != nil {
-			log.Fatalf("impossible to get grade for '%s'\n", site)
+			log.Fatalf("impossible to get grade for '%s': %v\n", site, err)
 		}
 		fmt.Printf("Grade for '%s' is %s\n", site, grade)
 	}
