@@ -147,7 +147,8 @@ func BeforeAPI(t *testing.T) {
 	}
 
 	// define request->response pairs
-	requestURL, _ := url.Parse("http://127.0.0.1:10000/https/tls.imirhil.fr.json")
+	request1, _ := url.Parse("http://127.0.0.1:10000/https/tls.imirhil.fr.json")
+	request2, _ := url.Parse("http://127.0.0.1:10000/https/tls.imirhil.com.json")
 	ft, err := ioutil.ReadFile("test/tls.imirhil.fr.json")
 	assert.NoError(t, err)
 
@@ -155,11 +156,21 @@ func BeforeAPI(t *testing.T) {
 		{
 			Request: http.Request{
 				Method: "GET",
-				URL:    requestURL,
+				URL:    request1,
 			},
 			Response: httpmock.Response{
 				StatusCode: 200,
 				Body:       string(ft),
+			},
+		},
+		{
+			Request: http.Request{
+				Method: "GET",
+				URL:    request2,
+			},
+			Response: httpmock.Response{
+				StatusCode: 302,
+				Body:       "no site",
 			},
 		},
 	})
@@ -186,12 +197,13 @@ func TestClient_GetScoreVerbose(t *testing.T) {
 }
 
 func TestClient_GetScoreNoSite(t *testing.T) {
-	ct := NewClient(Config{Timeout: 10, BaseURL: "http://127.0.0.1:10000"})
+	ct := NewClient(Config{Timeout: 10, BaseURL: "http://127.0.0.1:10000", Log: 2})
 	BeforeAPI(t)
 
 	t.Logf("ct=%#v", ct)
 	grade, err := ct.GetScore("tls.imirhil.com")
 	assert.Error(t, err)
+	t.Logf("error=%v", err)
 	assert.Equal(t, "Z", grade)
 }
 
