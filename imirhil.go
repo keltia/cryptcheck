@@ -11,11 +11,13 @@ package cryptcheck // import "github.com/keltia/cryptcheck"
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/keltia/proxy"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/keltia/proxy"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -114,7 +116,7 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 	req, err := http.NewRequest("GET", str, nil)
 	if err != nil {
 		log.Printf("error: req is nil: %v", err)
-		return Report{}, nil
+		return Report{}, errors.Wrap(err, "http.newrequest")
 	}
 
 	c.debug("req=%#v", req)
@@ -123,14 +125,14 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 	resp, err := c.client.Do(req)
 	if err != nil {
 		c.verbose("err=%#v", err)
-		return
+		return Report{}, errors.Wrap(err, "1st call")
 	}
 	c.debug("resp=%#v", resp)
 	defer resp.Body.Close()
 
 	body, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return
+		return Report{}, errors.Wrap(err, "read body")
 	}
 
 	if resp.StatusCode == http.StatusOK {
@@ -141,7 +143,7 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 			time.Sleep(10 * time.Second)
 			resp, err = c.client.Do(req)
 			if err != nil {
-				return
+				return Report{}, errors.Wrap(err, "pending error")
 			}
 			c.verbose("resp was %v", resp)
 		}
@@ -152,18 +154,16 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 
 		req, err = http.NewRequest("GET", str, nil)
 		if err != nil {
-			err = fmt.Errorf("Cannot handle redirect: %v", err)
-			return
+			return Report{}, errors.Wrap(err, "bad redirect")
 		}
 
 		resp, err = c.client.Do(req)
 		if err != nil {
-			return
+			return Report{}, errors.Wrap(err, "redirect")
 		}
 		c.verbose("resp was %v", resp)
 	} else {
-		err = fmt.Errorf("did not get acceptable status code: %v body: %q", resp.Status, body)
-		return
+		return Report{}, errors.Wrapf(err, "bad status %v body %v", resp.Status, body)
 	}
 
 	err = json.Unmarshal(body, &report)
