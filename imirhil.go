@@ -11,11 +11,13 @@ package cryptcheck // import "github.com/keltia/cryptcheck"
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/keltia/proxy"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/keltia/proxy"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -30,10 +32,13 @@ const (
 	APIVersion = "201805"
 
 	// MyVersion is the API version
-	MyVersion = "1.3.1"
+	MyVersion = "1.3.3"
 
 	// MyName is the name used for the configuration
 	MyName = "cryptcheck"
+
+	// DefaultRetry is the number of times we try hard to get an answer
+	DefaultRetry = 5
 )
 
 // Private area
@@ -96,13 +101,17 @@ func (c *Client) GetScore(site string) (score string, err error) {
 		score = "Z"
 		return
 	}
+	c.debug("full=%#v", full)
 	score = full.Hosts[0].Grade.Rank
 	return
 }
 
 // GetDetailedReport retrieve the full data
 func (c *Client) GetDetailedReport(site string) (report Report, err error) {
-	var body []byte
+	var (
+		retry = 0
+		body  []byte
+	)
 
 	str := fmt.Sprintf("%s/%s/%s%s", c.baseurl, typeURL, site, ext)
 
@@ -114,7 +123,7 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 	req, err := http.NewRequest("GET", str, nil)
 	if err != nil {
 		log.Printf("error: req is nil: %v", err)
-		return Report{}, nil
+		return Report{}, errors.Wrap(err, "http.newrequest")
 	}
 
 	c.debug("req=%#v", req)
@@ -123,49 +132,55 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 	resp, err := c.client.Do(req)
 	if err != nil {
 		c.verbose("err=%#v", err)
-		return
+		return Report{}, errors.Wrap(err, "1st call")
 	}
-	c.debug("resp=%#v", resp)
-	defer resp.Body.Close()
+	c.debug("resp=%#v, body=%s", resp, string(body))
 
-	body, err = ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return
-	}
+	for {
+		if retry == DefaultRetry {
+			return Report{}, errors.Wrap(err, "retry expired")
+		}
 
-	if resp.StatusCode == http.StatusOK {
+		body, err = ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return Report{}, errors.Wrap(err, "read body")
+		}
 
-		c.debug("status OK")
+		if resp.StatusCode == http.StatusOK {
 
-		if string(body) == "pending" {
-			time.Sleep(10 * time.Second)
+			c.debug("status OK")
+
+			if string(body) == "pending" {
+				retry++
+				time.Sleep(10 * time.Second)
+				resp, err = c.client.Do(req)
+				if err != nil {
+					return Report{}, errors.Wrap(err, "pending error")
+				}
+				c.verbose("resp was %v", resp)
+			} else {
+				// Next call succeed
+				break
+			}
+		} else if resp.StatusCode == http.StatusFound {
+			str := resp.Header["Location"][0]
+
+			c.debug("Got 302 to %s", str)
+
+			req, err = http.NewRequest("GET", str, nil)
+			if err != nil {
+				return Report{}, errors.Wrap(err, "bad redirect")
+			}
+
 			resp, err = c.client.Do(req)
 			if err != nil {
-				return
+				return Report{}, errors.Wrap(err, "redirect")
 			}
 			c.verbose("resp was %v", resp)
+		} else {
+			return Report{}, errors.Wrapf(err, "bad status %v body %v", resp.Status, body)
 		}
-	} else if resp.StatusCode == http.StatusFound {
-		str := resp.Header["Location"][0]
-
-		c.debug("Got 302 to %s", str)
-
-		req, err = http.NewRequest("GET", str, nil)
-		if err != nil {
-			err = fmt.Errorf("Cannot handle redirect: %v", err)
-			return
-		}
-
-		resp, err = c.client.Do(req)
-		if err != nil {
-			return
-		}
-		c.verbose("resp was %v", resp)
-	} else {
-		err = fmt.Errorf("did not get acceptable status code: %v body: %q", resp.Status, body)
-		return
 	}
-
 	err = json.Unmarshal(body, &report)
 	return
 }

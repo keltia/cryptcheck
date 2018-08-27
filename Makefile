@@ -4,16 +4,16 @@
 # Copyright 2018 © by Ollivier Robert <roberto@keltia.net>
 #
 
-.PATH=	cmd/getgrade:.
+GO=		go
 GOBIN=	${GOPATH}/bin
 
-GSRCS=	cmd/getgrade/main.go
+GSRCS=	cmd/cryptcheck/main.go
 SRCS=	imirhil.go types.go utils.go
 
 USRCS=	config_unix.go
 WSRCS=	config_windows.go
 
-BIN=	getgrade
+BIN=	cryptcheck
 EXE=	${BIN}.exe
 
 OPTS=	-ldflags="-s -w" -v
@@ -21,29 +21,28 @@ OPTS=	-ldflags="-s -w" -v
 all: ${BIN}
 
 ${BIN}: ${GSRCS} ${SRCS} ${USRCS}
-	go build ${OPTS} ./cmd/...
+	${GO} build ${OPTS} ./cmd/...
 
 ${EXE}: ${GSRCS} ${SRCS} ${USRCS}
-	GOOS=windows go build ${OPTS} ./cmd/...
+	GOOS=windows ${GO} build ${OPTS} ./cmd/...
 
 build: ${SRCS} ${USRCS}
-	go build ${OPTS}
-
-test: build
-	go test
+	${GO} build ${OPTS}
 
 windows: ${EXE}
-	GOOS=windows go build ${OPTS} .
+
+test: build
+	${GO} test .
 
 install:
-	go install ${OPTS} ./cmd/...
+	${GO} install ${OPTS} ./cmd/...
 
 lint:
 	gometalinter .
 
 clean:
-	go clean .
-	go clean ./cmd/...
+	${GO} clean .
+	${GO} clean ./cmd/...
 	-rm -f ${BIN} ${EXE}
 
 push:

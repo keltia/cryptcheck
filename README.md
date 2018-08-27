@@ -18,11 +18,11 @@ Go wrapper for [Imirhil/cryptcheck](https://tls.imirhil.fr/) API.  Currently v1 
 
 ## USAGE
 
-There is a small example program included in `cmd/getgrade` to either show the grade of a given site or JSON dump of the detailed report.
+There is a small example program included in `cmd/cryptcheck` to either show the grade of a given site or JSON dump of the detailed report.
 
-You can use `jq` to display the output of `getgrade -d <site>` in a colorised way:
+You can use `jq` to display the output of `cryptcheck -d <site>` in a colorised way:
 
-    getgrade -d tls.imirhil.fr | jq .
+    cryptcheck -d tls.imirhil.fr | jq .
 
 ## API Usage
 
