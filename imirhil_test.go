@@ -18,6 +18,8 @@ import (
 	"time"
 )
 
+const testURL = "http://127.0.0.1:10000"
+
 var (
 	cnfFalseZ  = Config{Log: 0}
 	cnfFalseNZ = Config{Log: 1}
@@ -147,8 +149,8 @@ func BeforeAPI(t *testing.T) {
 	}
 
 	// define request->response pairs
-	request1, _ := url.Parse("http://127.0.0.1:10000/https/tls.imirhil.fr.json")
-	request2, _ := url.Parse("http://127.0.0.1:10000/https/tls.imirhil.com.json")
+	request1, _ := url.Parse(testURL+"/https/tls.imirhil.fr.json")
+	request2, _ := url.Parse(testURL+"/https/tls.imirhil.com.json")
 	ft, err := ioutil.ReadFile("test/tls.imirhil.fr.json")
 	assert.NoError(t, err)
 
@@ -177,7 +179,7 @@ func BeforeAPI(t *testing.T) {
 }
 
 func TestClient_GetScore(t *testing.T) {
-	ct := NewClient(Config{Timeout: 10, BaseURL: "http://127.0.0.1:10000"})
+	ct := NewClient(Config{Timeout: 10, BaseURL: testURL})
 	BeforeAPI(t)
 
 	t.Logf("ct=%#v", ct)
@@ -187,7 +189,7 @@ func TestClient_GetScore(t *testing.T) {
 }
 
 func TestClient_GetScoreVerbose(t *testing.T) {
-	ct := NewClient(Config{Timeout: 10, Log: 1, BaseURL: "http://127.0.0.1:10000"})
+	ct := NewClient(Config{Timeout: 10, Log: 1, BaseURL: testURL})
 	BeforeAPI(t)
 
 	t.Logf("ct=%#v", ct)
@@ -197,7 +199,7 @@ func TestClient_GetScoreVerbose(t *testing.T) {
 }
 
 func TestClient_GetScoreNoSite(t *testing.T) {
-	ct := NewClient(Config{Timeout: 10, BaseURL: "http://127.0.0.1:10000", Log: 2})
+	ct := NewClient(Config{Timeout: 10, BaseURL: testURL, Log: 2})
 	BeforeAPI(t)
 
 	t.Logf("ct=%#v", ct)
@@ -208,7 +210,7 @@ func TestClient_GetScoreNoSite(t *testing.T) {
 }
 
 func TestClient_GetScoreDebug(t *testing.T) {
-	ct := NewClient(Config{Timeout: 10, Log: 2, BaseURL: "http://127.0.0.1:10000"})
+	ct := NewClient(Config{Timeout: 10, Log: 2, BaseURL: testURL})
 	BeforeAPI(t)
 
 	t.Logf("ct=%#v", ct)
