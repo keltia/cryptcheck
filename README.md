@@ -12,9 +12,23 @@ cryptcheck
 
 Go wrapper for [Imirhil/cryptcheck](https://tls.imirhil.fr/) API.  Currently v1 of the API is supported, v2 is not released or documented yet.
 
+API v1 is now at 201809, added missing Error field in Host.
+
 ## Requirements
 
 * Go >= 1.10
+
+## Installation
+
+You need to install this module if you are using Go 1.10.x or earlier.
+
+    go get github.com/keltia/proxy
+
+With Go 1.11+ and its modules support, it should work out of the box with
+
+    go get github.com/keltia/cryptcheck/cmd/...
+
+if you have the `GO111MODULE` environment variable set on `on`.
 
 ## USAGE
 
