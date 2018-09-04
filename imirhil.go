@@ -29,10 +29,10 @@ const (
 	DefaultWait = 10 * time.Second
 
 	// APIVersion is the cryptcheck API v1 as observed
-	APIVersion = "201805"
+	APIVersion = "201809"
 
 	// MyVersion is the API version
-	MyVersion = "1.3.3"
+	MyVersion = "1.4.0"
 
 	// MyName is the name used for the configuration
 	MyName = "cryptcheck"
@@ -101,7 +101,13 @@ func (c *Client) GetScore(site string) (score string, err error) {
 		score = "Z"
 		return
 	}
-	c.debug("full=%#v", full)
+	c.debug("fullscore=%#v", full)
+	if full.Hosts[0].Error != "" {
+		c.debug("got errors")
+		score = "Z"
+		err = errors.New(fmt.Sprintf("unknown site: %v", full.Hosts[0].Error))
+		return
+	}
 	score = full.Hosts[0].Grade.Rank
 	return
 }
@@ -131,7 +137,7 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 
 	resp, err := c.client.Do(req)
 	if err != nil {
-		c.verbose("err=%#v", err)
+		c.verbose("err=%s", err.Error())
 		return Report{}, errors.Wrap(err, "1st call")
 	}
 	c.debug("resp=%#v, body=%s", resp, string(body))
@@ -181,7 +187,15 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 			return Report{}, errors.Wrapf(err, "bad status %v body %v", resp.Status, body)
 		}
 	}
+	c.debug("success: %s", string(body))
 	err = json.Unmarshal(body, &report)
+
+	if report.Hosts[0].Error != "" {
+		c.debug("got errors")
+		err = errors.New(fmt.Sprintf("unknown site: %v", report.Hosts[0].Error))
+		return
+	}
+
 	return
 }
 
