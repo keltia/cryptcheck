@@ -9,6 +9,7 @@
 // 20160511 "new" API
 // 20171204 add ID to struct Report
 // 20180502 added two fields in the report top struct
+// 20180904 added Host.Error.
 
 package cryptcheck
 
@@ -65,9 +66,10 @@ type Handshake struct {
 
 // Host describe a single host
 type Host struct {
-	Host      Site      `json:"host"`
+	HOst      Site      `json:"host"`
 	Handshake Handshake `json:"handshake"`
 	Grade     Grade
+	Error     string
 }
 
 // Report describes the details for the crypto
