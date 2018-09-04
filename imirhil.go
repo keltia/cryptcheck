@@ -29,10 +29,10 @@ const (
 	DefaultWait = 10 * time.Second
 
 	// APIVersion is the cryptcheck API v1 as observed
-	APIVersion = "201805"
+	APIVersion = "201809"
 
 	// MyVersion is the API version
-	MyVersion = "1.3.3"
+	MyVersion = "1.4.0"
 
 	// MyName is the name used for the configuration
 	MyName = "cryptcheck"
