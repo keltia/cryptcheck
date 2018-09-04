@@ -137,7 +137,7 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 
 	resp, err := c.client.Do(req)
 	if err != nil {
-		c.verbose("err=%#v", err)
+		c.verbose("err=%s", err.Error())
 		return Report{}, errors.Wrap(err, "1st call")
 	}
 	c.debug("resp=%#v, body=%s", resp, string(body))
@@ -187,6 +187,7 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 			return Report{}, errors.Wrapf(err, "bad status %v body %v", resp.Status, body)
 		}
 	}
+	c.debug("success: %s", string(body))
 	err = json.Unmarshal(body, &report)
 	return
 }
