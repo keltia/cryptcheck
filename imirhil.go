@@ -101,7 +101,13 @@ func (c *Client) GetScore(site string) (score string, err error) {
 		score = "Z"
 		return
 	}
-	c.debug("full=%#v", full)
+	c.debug("fullscore=%#v", full)
+	if full.Hosts[0].Error != "" {
+		c.debug("got errors")
+		score = "Z"
+		err = errors.New(fmt.Sprintf("unknown site: %v", full.Hosts[0].Error))
+		return
+	}
 	score = full.Hosts[0].Grade.Rank
 	return
 }
