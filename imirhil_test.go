@@ -6,9 +6,6 @@ package cryptcheck
 
 import (
 	"encoding/json"
-	"github.com/goware/httpmock"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -16,7 +13,13 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/goware/httpmock"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+const testURL = "http://localhost:10000"
 
 var (
 	cnfFalseZ  = Config{Log: 0}
@@ -177,7 +180,7 @@ func BeforeAPI(t *testing.T) {
 }
 
 func TestClient_GetScore(t *testing.T) {
-	ct := NewClient(Config{Timeout: 10, BaseURL: "http://127.0.0.1:10000"})
+	ct := NewClient(Config{Timeout: 10, BaseURL: testURL})
 	BeforeAPI(t)
 
 	t.Logf("ct=%#v", ct)
@@ -187,7 +190,7 @@ func TestClient_GetScore(t *testing.T) {
 }
 
 func TestClient_GetScoreVerbose(t *testing.T) {
-	ct := NewClient(Config{Timeout: 10, Log: 1, BaseURL: "http://127.0.0.1:10000"})
+	ct := NewClient(Config{Timeout: 10, Log: 1, BaseURL: testURL})
 	BeforeAPI(t)
 
 	t.Logf("ct=%#v", ct)
@@ -197,7 +200,7 @@ func TestClient_GetScoreVerbose(t *testing.T) {
 }
 
 func TestClient_GetScoreNoSite(t *testing.T) {
-	ct := NewClient(Config{Timeout: 10, BaseURL: "http://127.0.0.1:10000", Log: 2})
+	ct := NewClient(Config{Timeout: 10, BaseURL: testURL, Log: 2})
 	BeforeAPI(t)
 
 	t.Logf("ct=%#v", ct)
@@ -208,7 +211,7 @@ func TestClient_GetScoreNoSite(t *testing.T) {
 }
 
 func TestClient_GetScoreDebug(t *testing.T) {
-	ct := NewClient(Config{Timeout: 10, Log: 2, BaseURL: "http://127.0.0.1:10000"})
+	ct := NewClient(Config{Timeout: 10, Log: 2, BaseURL: testURL})
 	BeforeAPI(t)
 
 	t.Logf("ct=%#v", ct)
@@ -218,7 +221,7 @@ func TestClient_GetScoreDebug(t *testing.T) {
 }
 
 func TestClient_GetDetailedReport(t *testing.T) {
-	ct := NewClient(Config{BaseURL: "http://127.0.0.1:10000"})
+	ct := NewClient(Config{BaseURL: testURL})
 	BeforeAPI(t)
 
 	var jr Report
@@ -235,7 +238,7 @@ func TestClient_GetDetailedReport(t *testing.T) {
 }
 
 func TestClient_GetDetailedVerbose(t *testing.T) {
-	ct := NewClient(Config{Log: 1, BaseURL: "http://127.0.0.1:10000"})
+	ct := NewClient(Config{Log: 1, BaseURL: testURL})
 	BeforeAPI(t)
 
 	var jr Report
@@ -252,7 +255,7 @@ func TestClient_GetDetailedVerbose(t *testing.T) {
 }
 
 func TestClient_GetDetailedNoSite(t *testing.T) {
-	ct := NewClient(Config{BaseURL: "http://127.0.0.1:10000"})
+	ct := NewClient(Config{BaseURL: testURL})
 	BeforeAPI(t)
 
 	r, err := ct.GetDetailedReport("tls.imirhil.com")
