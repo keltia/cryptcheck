@@ -304,5 +304,5 @@ func TestClient_GetDetailedNoSite(t *testing.T) {
 func TestVersion(t *testing.T) {
 	v := Version()
 	require.NotEmpty(t, v)
-	assert.Equal(t, "201805", v)
+	assert.Equal(t, "201809", v)
 }
