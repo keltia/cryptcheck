@@ -32,7 +32,7 @@ var (
 )
 
 func TestNewClientDefault(t *testing.T) {
-	f := filepath.Join(".", "test/test-netrc")
+	f := filepath.Join(".", "testdata/test-netrc")
 	err := os.Setenv("NETRC", f)
 	require.NoError(t, err)
 
@@ -48,7 +48,7 @@ func TestNewClientDefault(t *testing.T) {
 }
 
 func TestNewClient(t *testing.T) {
-	f := filepath.Join(".", "test/test-netrc")
+	f := filepath.Join(".", "testdata/test-netrc")
 	err := os.Setenv("NETRC", f)
 	require.NoError(t, err)
 
@@ -64,7 +64,7 @@ func TestNewClient(t *testing.T) {
 }
 
 func TestNewClient2(t *testing.T) {
-	f := filepath.Join(".", "test/test-netrc")
+	f := filepath.Join(".", "testdata/test-netrc")
 	err := os.Setenv("NETRC", f)
 	require.NoError(t, err)
 
@@ -80,7 +80,7 @@ func TestNewClient2(t *testing.T) {
 }
 
 func TestNewClient3(t *testing.T) {
-	f := filepath.Join(".", "test/test-netrc")
+	f := filepath.Join(".", "testdata/test-netrc")
 	err := os.Setenv("NETRC", f)
 	require.NoError(t, err)
 
@@ -96,7 +96,7 @@ func TestNewClient3(t *testing.T) {
 }
 
 func TestNewClient4(t *testing.T) {
-	f := filepath.Join(".", "test/test-netrc")
+	f := filepath.Join(".", "testdata/test-netrc")
 	err := os.Setenv("NETRC", f)
 	require.NoError(t, err)
 
@@ -112,7 +112,7 @@ func TestNewClient4(t *testing.T) {
 }
 
 func TestNewClient5(t *testing.T) {
-	f := filepath.Join(".", "test/test-netrc")
+	f := filepath.Join(".", "testdata/test-netrc")
 	err := os.Setenv("NETRC", f)
 	require.NoError(t, err)
 
@@ -128,7 +128,7 @@ func TestNewClient5(t *testing.T) {
 }
 
 func TestNewClientNoProxy(t *testing.T) {
-	f := filepath.Join(".", "test/no-netrc")
+	f := filepath.Join(".", "testdata/no-netrc")
 	err := os.Setenv("NETRC", f)
 	require.NoError(t, err)
 
