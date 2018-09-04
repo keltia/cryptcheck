@@ -7,14 +7,12 @@ package cryptcheck
 import (
 	"encoding/json"
 	"io/ioutil"
-	"net/http"
-	"net/url"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
 
-	"github.com/goware/httpmock"
+	"github.com/h2non/gock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -27,8 +25,6 @@ var (
 	cnfFalseDG = Config{Log: 2}
 	cnfTrueZ   = Config{Refresh: true}
 	cnfTrueZT5 = Config{Refresh: true, Timeout: 5}
-
-	mockService *httpmock.MockHTTPServer
 )
 
 func TestNewClientDefault(t *testing.T) {
@@ -143,124 +139,166 @@ func TestNewClientNoProxy(t *testing.T) {
 	assert.False(t, c.refresh)
 }
 
-func BeforeAPI(t *testing.T) {
-	if mockService == nil {
-		// new mocking server
-		mockService = httpmock.NewMockHTTPServer("127.0.0.1:10000")
-	}
+func TestClient_GetScore(t *testing.T) {
+	defer gock.Off()
 
-	// define request->response pairs
-	request1, _ := url.Parse("http://127.0.0.1:10000/https/tls.imirhil.fr.json")
-	request2, _ := url.Parse("http://127.0.0.1:10000/https/tls.imirhil.com.json")
-	ft, err := ioutil.ReadFile("test/tls.imirhil.fr.json")
+	ft, err := ioutil.ReadFile("testdata/tls.imirhil.fr.json")
 	assert.NoError(t, err)
 
-	mockService.AddResponses([]httpmock.MockResponse{
-		{
-			Request: http.Request{
-				Method: "GET",
-				URL:    request1,
-			},
-			Response: httpmock.Response{
-				StatusCode: 200,
-				Body:       string(ft),
-			},
-		},
-		{
-			Request: http.Request{
-				Method: "GET",
-				URL:    request2,
-			},
-			Response: httpmock.Response{
-				StatusCode: 302,
-				Body:       "no site",
-			},
-		},
-	})
-}
+	gock.New(testURL).
+		Get("/https/tls.imirhil.fr.json").
+		Reply(200).
+		BodyString(string(ft))
 
-func TestClient_GetScore(t *testing.T) {
-	ct := NewClient(Config{Timeout: 10, BaseURL: testURL})
-	BeforeAPI(t)
+	c := NewClient(Config{Timeout: 10, BaseURL: testURL})
 
-	t.Logf("ct=%#v", ct)
-	grade, err := ct.GetScore("tls.imirhil.fr")
+	gock.InterceptClient(c.client)
+	defer gock.RestoreClient(c.client)
+
+	grade, err := c.GetScore("tls.imirhil.fr")
 	assert.NoError(t, err)
 	assert.Equal(t, "A+", grade)
 }
 
 func TestClient_GetScoreVerbose(t *testing.T) {
-	ct := NewClient(Config{Timeout: 10, Log: 1, BaseURL: testURL})
-	BeforeAPI(t)
+	defer gock.Off()
 
-	t.Logf("ct=%#v", ct)
-	grade, err := ct.GetScore("tls.imirhil.fr")
+	ft, err := ioutil.ReadFile("testdata/tls.imirhil.fr.json")
+	assert.NoError(t, err)
+
+	gock.New(testURL).
+		Get("/https/tls.imirhil.fr.json").
+		Reply(200).
+		BodyString(string(ft))
+
+	c := NewClient(Config{Timeout: 10, Log: 1, BaseURL: testURL})
+
+	gock.InterceptClient(c.client)
+	defer gock.RestoreClient(c.client)
+
+	grade, err := c.GetScore("tls.imirhil.fr")
 	assert.NoError(t, err)
 	assert.Equal(t, "A+", grade)
 }
 
 func TestClient_GetScoreNoSite(t *testing.T) {
-	ct := NewClient(Config{Timeout: 10, BaseURL: testURL, Log: 2})
-	BeforeAPI(t)
+	defer gock.Off()
 
-	t.Logf("ct=%#v", ct)
-	grade, err := ct.GetScore("tls.imirhil.com")
+	ft, err := ioutil.ReadFile("testdata/tls.imirhil.com.json")
+	assert.NoError(t, err)
+
+	gock.New(testURL).
+		Get("/https/tls.imirhil.com.json").
+		Reply(200).
+		BodyString(string(ft))
+
+	c := NewClient(Config{Timeout: 10, BaseURL: testURL})
+
+	gock.InterceptClient(c.client)
+	defer gock.RestoreClient(c.client)
+
+	grade, err := c.GetScore("tls.imirhil.com")
 	assert.Error(t, err)
-	t.Logf("error=%v", err)
 	assert.Equal(t, "Z", grade)
 }
 
 func TestClient_GetScoreDebug(t *testing.T) {
-	ct := NewClient(Config{Timeout: 10, Log: 2, BaseURL: testURL})
-	BeforeAPI(t)
+	defer gock.Off()
 
-	t.Logf("ct=%#v", ct)
-	grade, err := ct.GetScore("tls.imirhil.fr")
+	ft, err := ioutil.ReadFile("testdata/tls.imirhil.fr.json")
+	assert.NoError(t, err)
+
+	gock.New(testURL).
+		Get("/https/tls.imirhil.fr.json").
+		Reply(200).
+		BodyString(string(ft))
+
+	c := NewClient(Config{Timeout: 10, Log: 2, BaseURL: testURL})
+
+	gock.InterceptClient(c.client)
+	defer gock.RestoreClient(c.client)
+
+	grade, err := c.GetScore("tls.imirhil.fr")
 	assert.NoError(t, err)
 	assert.Equal(t, "A+", grade)
 }
 
 func TestClient_GetDetailedReport(t *testing.T) {
-	ct := NewClient(Config{BaseURL: testURL})
-	BeforeAPI(t)
+	defer gock.Off()
+
+	ft, err := ioutil.ReadFile("testdata/tls.imirhil.fr.json")
+	assert.NoError(t, err)
+
+	gock.New(testURL).
+		Get("/https/tls.imirhil.fr.json").
+		Reply(200).
+		BodyString(string(ft))
+
+	c := NewClient(Config{Timeout: 10, BaseURL: testURL})
+
+	gock.InterceptClient(c.client)
+	defer gock.RestoreClient(c.client)
 
 	var jr Report
-
-	ft, err := ioutil.ReadFile("test/tls.imirhil.fr.json")
-	require.NoError(t, err)
 
 	err = json.Unmarshal(ft, &jr)
 	assert.NoError(t, err)
 
-	r, err := ct.GetDetailedReport("tls.imirhil.fr")
+	r, err := c.GetDetailedReport("tls.imirhil.fr")
 	assert.NoError(t, err)
 	assert.Equal(t, jr, r)
 }
 
 func TestClient_GetDetailedVerbose(t *testing.T) {
-	ct := NewClient(Config{Log: 1, BaseURL: testURL})
-	BeforeAPI(t)
+	defer gock.Off()
+
+	ft, err := ioutil.ReadFile("testdata/tls.imirhil.fr.json")
+	assert.NoError(t, err)
+
+	gock.New(testURL).
+		Get("/https/tls.imirhil.fr.json").
+		Reply(200).
+		BodyString(string(ft))
+
+	c := NewClient(Config{Timeout: 10, Log: 1, BaseURL: testURL})
+
+	gock.InterceptClient(c.client)
+	defer gock.RestoreClient(c.client)
 
 	var jr Report
-
-	ft, err := ioutil.ReadFile("test/tls.imirhil.fr.json")
-	require.NoError(t, err)
 
 	err = json.Unmarshal(ft, &jr)
 	assert.NoError(t, err)
 
-	r, err := ct.GetDetailedReport("tls.imirhil.fr")
+	r, err := c.GetDetailedReport("tls.imirhil.fr")
 	assert.NoError(t, err)
 	assert.Equal(t, jr, r)
 }
 
 func TestClient_GetDetailedNoSite(t *testing.T) {
-	ct := NewClient(Config{BaseURL: testURL})
-	BeforeAPI(t)
+	defer gock.Off()
 
-	r, err := ct.GetDetailedReport("tls.imirhil.com")
+	ft, err := ioutil.ReadFile("testdata/tls.imirhil.com.json")
+	assert.NoError(t, err)
+
+	gock.New(testURL).
+		Get("/https/tls.imirhil.com.json").
+		Reply(200).
+		BodyString(string(ft))
+
+	c := NewClient(Config{Timeout: 10, BaseURL: testURL})
+
+	gock.InterceptClient(c.client)
+	defer gock.RestoreClient(c.client)
+
+	var jr Report
+
+	err = json.Unmarshal(ft, &jr)
+	assert.NoError(t, err)
+
+	r, err := c.GetDetailedReport("tls.imirhil.com")
 	assert.Error(t, err)
-	assert.Equal(t, Report{}, r)
+	assert.Equal(t, jr, r)
 }
 
 func TestVersion(t *testing.T) {
