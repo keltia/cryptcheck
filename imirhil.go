@@ -189,6 +189,13 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 	}
 	c.debug("success: %s", string(body))
 	err = json.Unmarshal(body, &report)
+
+	if report.Hosts[0].Error != "" {
+		c.debug("got errors")
+		err = errors.New(fmt.Sprintf("unknown site: %v", report.Hosts[0].Error))
+		return
+	}
+
 	return
 }
 
