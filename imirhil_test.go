@@ -17,8 +17,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const testURL = "http://localhost:10000"
-
 var (
 	cnfFalseZ  = Config{Log: 0}
 	cnfFalseNZ = Config{Log: 1}
@@ -145,12 +143,12 @@ func TestClient_GetScore(t *testing.T) {
 	ft, err := ioutil.ReadFile("testdata/tls.imirhil.fr.json")
 	assert.NoError(t, err)
 
-	gock.New(testURL).
+	gock.New(baseURL).
 		Get("/https/tls.imirhil.fr.json").
 		Reply(200).
 		BodyString(string(ft))
 
-	c := NewClient(Config{Timeout: 10, BaseURL: testURL})
+	c := NewClient(Config{Timeout: 10, BaseURL: baseURL})
 
 	gock.InterceptClient(c.client)
 	defer gock.RestoreClient(c.client)
@@ -166,12 +164,12 @@ func TestClient_GetScoreVerbose(t *testing.T) {
 	ft, err := ioutil.ReadFile("testdata/tls.imirhil.fr.json")
 	assert.NoError(t, err)
 
-	gock.New(testURL).
+	gock.New(baseURL).
 		Get("/https/tls.imirhil.fr.json").
 		Reply(200).
 		BodyString(string(ft))
 
-	c := NewClient(Config{Timeout: 10, Log: 1, BaseURL: testURL})
+	c := NewClient(Config{Timeout: 10, Log: 1, BaseURL: baseURL})
 
 	gock.InterceptClient(c.client)
 	defer gock.RestoreClient(c.client)
@@ -187,12 +185,12 @@ func TestClient_GetScoreNoSite(t *testing.T) {
 	ft, err := ioutil.ReadFile("testdata/tls.imirhil.com.json")
 	assert.NoError(t, err)
 
-	gock.New(testURL).
+	gock.New(baseURL).
 		Get("/https/tls.imirhil.com.json").
 		Reply(200).
 		BodyString(string(ft))
 
-	c := NewClient(Config{Timeout: 10, BaseURL: testURL})
+	c := NewClient(Config{Timeout: 10, BaseURL: baseURL})
 
 	gock.InterceptClient(c.client)
 	defer gock.RestoreClient(c.client)
@@ -208,12 +206,12 @@ func TestClient_GetScoreDebug(t *testing.T) {
 	ft, err := ioutil.ReadFile("testdata/tls.imirhil.fr.json")
 	assert.NoError(t, err)
 
-	gock.New(testURL).
+	gock.New(baseURL).
 		Get("/https/tls.imirhil.fr.json").
 		Reply(200).
 		BodyString(string(ft))
 
-	c := NewClient(Config{Timeout: 10, Log: 2, BaseURL: testURL})
+	c := NewClient(Config{Timeout: 10, Log: 2, BaseURL: baseURL})
 
 	gock.InterceptClient(c.client)
 	defer gock.RestoreClient(c.client)
@@ -229,12 +227,12 @@ func TestClient_GetDetailedReport(t *testing.T) {
 	ft, err := ioutil.ReadFile("testdata/tls.imirhil.fr.json")
 	assert.NoError(t, err)
 
-	gock.New(testURL).
+	gock.New(baseURL).
 		Get("/https/tls.imirhil.fr.json").
 		Reply(200).
 		BodyString(string(ft))
 
-	c := NewClient(Config{Timeout: 10, BaseURL: testURL})
+	c := NewClient(Config{Timeout: 10, BaseURL: baseURL})
 
 	gock.InterceptClient(c.client)
 	defer gock.RestoreClient(c.client)
@@ -255,12 +253,12 @@ func TestClient_GetDetailedVerbose(t *testing.T) {
 	ft, err := ioutil.ReadFile("testdata/tls.imirhil.fr.json")
 	assert.NoError(t, err)
 
-	gock.New(testURL).
+	gock.New(baseURL).
 		Get("/https/tls.imirhil.fr.json").
 		Reply(200).
 		BodyString(string(ft))
 
-	c := NewClient(Config{Timeout: 10, Log: 1, BaseURL: testURL})
+	c := NewClient(Config{Timeout: 10, Log: 1, BaseURL: baseURL})
 
 	gock.InterceptClient(c.client)
 	defer gock.RestoreClient(c.client)
@@ -281,12 +279,12 @@ func TestClient_GetDetailedNoSite(t *testing.T) {
 	ft, err := ioutil.ReadFile("testdata/tls.imirhil.com.json")
 	assert.NoError(t, err)
 
-	gock.New(testURL).
+	gock.New(baseURL).
 		Get("/https/tls.imirhil.com.json").
 		Reply(200).
 		BodyString(string(ft))
 
-	c := NewClient(Config{Timeout: 10, BaseURL: testURL})
+	c := NewClient(Config{Timeout: 10, BaseURL: baseURL})
 
 	gock.InterceptClient(c.client)
 	defer gock.RestoreClient(c.client)
