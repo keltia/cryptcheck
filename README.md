@@ -20,7 +20,7 @@ API v1 is now at 201809, added missing Error field in Host.
 
 ## Installation
 
-You need to install this module if you are using Go 1.10.x or earlier.
+You need to install my `proxy` module before if you are using Go 1.10.x or earlier.
 
     go get github.com/keltia/proxy
 
@@ -34,9 +34,28 @@ if you have the `GO111MODULE` environment variable set on `on`.
 
 There is a small example program included in `cmd/cryptcheck` to either show the grade of a given site or JSON dump of the detailed report.
 
-You can use `jq` to display the output of `cryptcheck -d <site>` in a colorised way:
+You can just get the grade like this:
 
-    cryptcheck -d tls.imirhil.fr | jq .
+    $ cryptcheck www.ssllabs.com
+    cryptcheck Wrapper: 1.4.0 API version 201809
+    
+    Grade for 'www.ssllabs.com' is B (Date: 2018-07-30 23:52:52.494 +0200 CEST)
+
+You can get a more detail report with `-d`:
+
+    $ cryptcheck -d www.ssllabs.com
+    cryptcheck Wrapper: 1.4.0 API version 201809
+    
+    {"Hosts":[{"host":{"Name":"www.ssllabs.com","ip":"64.41.200.100","Port":443},"handshake":{"Key":{"type":"rsa","size":20
+    [...]
+
+You can use `jq` to display the output of `cryptcheck -d <site>` in a colorised way (use `-raw` to remove the banner display):
+
+    cryptcheck -raw tls.imirhil.fr | jq .
+
+There is also a debug mode with `-D`.
+
+By default, Cryptcheck returns the last run cached by the site, if you want to refresh, use `-R`.
 
 ## API Usage
 
