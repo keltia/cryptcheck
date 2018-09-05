@@ -7,6 +7,7 @@ package cryptcheck
 import (
 	"encoding/json"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"path/filepath"
 	"testing"
@@ -297,6 +298,64 @@ func TestClient_GetDetailedNoSite(t *testing.T) {
 	r, err := c.GetDetailedReport("tls.imirhil.com")
 	assert.Error(t, err)
 	assert.Equal(t, jr, r)
+}
+
+func TestCallAPI(t *testing.T) {
+	defer gock.Off()
+
+	site := "tls.imirhil.fr"
+
+	ft, err := ioutil.ReadFile("testdata/" + site + ".json")
+	assert.NoError(t, err)
+
+	gock.New(baseURL).
+		Get("/https/" + site + ".json").
+		Reply(200).
+		BodyString(string(ft))
+
+	c := NewClient()
+
+	gock.InterceptClient(c.client)
+	defer gock.RestoreClient(c.client)
+
+	str := "https://tls.imirhil.fr/https/" + site + ".json"
+	resp, body, err := c.callAPI(str)
+
+	require.NoError(t, err)
+	assert.NotNil(t, resp)
+	assert.IsType(t, (*http.Response)(nil), resp)
+
+	assert.NotNil(t, body)
+	assert.NotEmpty(t, body)
+}
+
+func TestCallAPI2(t *testing.T) {
+	defer gock.Off()
+
+	site := "tls.imirhil.fr"
+
+	gock.New(baseURL).
+		Get("/https/"+site+"/refresh").
+		Reply(200).
+		SetHeader("Location", baseURL+"/https/"+site+".json").
+		BodyString(string("HTML body we do not care about"))
+
+	c := NewClient()
+
+	gock.InterceptClient(c.client)
+	defer gock.RestoreClient(c.client)
+
+	str := "https://tls.imirhil.fr/https/" + site + "/refresh"
+	resp, body, err := c.callAPI(str)
+
+	require.NoError(t, err)
+	assert.Equal(t, "HTML body we do not care about", string(body))
+	assert.NotNil(t, resp)
+	assert.IsType(t, (*http.Response)(nil), resp)
+	assert.Equal(t, baseURL+"/https/"+site+".json", resp.Header.Get("Location"))
+
+	assert.NotNil(t, body)
+	assert.NotEmpty(t, body)
 }
 
 func TestVersion(t *testing.T) {
