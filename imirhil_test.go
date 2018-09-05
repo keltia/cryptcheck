@@ -358,6 +358,11 @@ func TestCallAPI2(t *testing.T) {
 	assert.NotEmpty(t, body)
 }
 
+func TestMyRedirect(t *testing.T) {
+	err := myRedirect(nil, nil)
+	require.NoError(t, err)
+}
+
 func TestVersion(t *testing.T) {
 	v := Version()
 	require.NotEmpty(t, v)
