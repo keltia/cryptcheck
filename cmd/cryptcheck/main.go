@@ -21,6 +21,7 @@ import (
 var (
 	fDebug    bool
 	fDetailed bool
+	fRaw      bool
 	fRefresh  bool
 
 	// MyName is the application name
@@ -28,9 +29,14 @@ var (
 )
 
 func init() {
+	// Flags
 	flag.BoolVar(&fDebug, "D", false, "Debug mode")
 	flag.BoolVar(&fRefresh, "R", false, "Force a refresh")
 	flag.BoolVar(&fDetailed, "d", false, "Get a detailed report")
+
+	// Commands
+	flag.BoolVar(&fRaw, "raw", false, "RAW JSON mode.")
+
 	flag.Parse()
 
 	if len(flag.Args()) == 0 {
@@ -43,6 +49,11 @@ func main() {
 
 	site := flag.Arg(0)
 
+	// -raw implies -d
+	if fRaw {
+		fDetailed = true
+	}
+
 	if fDebug {
 		client = cryptcheck.NewClient(cryptcheck.Config{Log: 2, Refresh: fRefresh})
 	} else {
@@ -54,8 +65,11 @@ func main() {
 		log.Fatalf("impossible to get grade for '%s': %v\n", site, err)
 	}
 
-	fmt.Printf("%s Wrapper: %s API version %s\n\n",
-		MyName, cryptcheck.MyVersion, cryptcheck.APIVersion)
+	if !fRaw {
+		fmt.Printf("%s Wrapper: %s API version %s\n\n",
+			MyName, cryptcheck.MyVersion, cryptcheck.APIVersion)
+	}
+
 	if fDetailed {
 		// Just dump the json
 		jr, _ := json.Marshal(report)
