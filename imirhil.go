@@ -14,6 +14,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/keltia/proxy"
@@ -117,49 +118,47 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 	var (
 		retry = 0
 		body  []byte
+		str   string
 	)
 
-	str := fmt.Sprintf("%s/%s/%s%s", c.baseurl, typeURL, site, ext)
-
 	if c.refresh {
-		str = str + "/refresh"
+		str = fmt.Sprintf("%s/%s/%s/%s", c.baseurl, typeURL, site, "refresh")
+	} else {
+		str = fmt.Sprintf("%s/%s/%s%s", c.baseurl, typeURL, site, ext)
 	}
 
 	c.debug("str=%s", str)
-	req, err := http.NewRequest("GET", str, nil)
-	if err != nil {
-		log.Printf("error: req is nil: %v", err)
-		return Report{}, errors.Wrap(err, "http.newrequest")
-	}
 
-	c.debug("req=%#v", req)
-	c.debug("clt=%#v", c.client)
-
-	resp, err := c.client.Do(req)
-	if err != nil {
-		c.verbose("err=%s", err.Error())
-		return Report{}, errors.Wrap(err, "1st call")
-	}
-	c.debug("resp=%#v, body=%s", resp, string(body))
+	resp, body, err := c.callAPI(str)
 
 	for {
 		if retry == DefaultRetry {
 			return Report{}, errors.Wrap(err, "retry expired")
 		}
 
-		body, err = ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return Report{}, errors.Wrap(err, "read body")
-		}
-
 		if resp.StatusCode == http.StatusOK {
 
 			c.debug("status OK")
 
-			if string(body) == "pending" {
+			// If refreshing, we discard the body
+			if c.refresh {
+				c.debug("refresh requested")
+				str = fmt.Sprintf("%s/%s/%s%s", c.baseurl, typeURL, site, ext)
+				resp, body, err = c.callAPI(str)
+				if err != nil {
+					return Report{}, errors.Wrap(err, "refresh error")
+				}
+
+				// Reset it otherwise we loop forever-ish
+				c.refresh = false
+				continue
+			}
+
+			if strings.Contains(string(body), "pending") {
 				retry++
 				time.Sleep(10 * time.Second)
-				resp, err = c.client.Do(req)
+
+				resp, body, err = c.callAPI(str)
 				if err != nil {
 					return Report{}, errors.Wrap(err, "pending error")
 				}
@@ -173,16 +172,10 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 
 			c.debug("Got 302 to %s", str)
 
-			req, err = http.NewRequest("GET", str, nil)
-			if err != nil {
-				return Report{}, errors.Wrap(err, "bad redirect")
-			}
+			resp, body, err = c.callAPI(str)
 
-			resp, err = c.client.Do(req)
-			if err != nil {
-				return Report{}, errors.Wrap(err, "redirect")
-			}
 			c.verbose("resp was %v", resp)
+
 		} else {
 			return Report{}, errors.Wrapf(err, "bad status %v body %v", resp.Status, body)
 		}
@@ -190,13 +183,55 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 	c.debug("success: %s", string(body))
 	err = json.Unmarshal(body, &report)
 
-	if report.Hosts[0].Error != "" {
-		c.debug("got errors")
-		err = errors.New(fmt.Sprintf("unknown site: %v", report.Hosts[0].Error))
-		return
+	if len(report.Hosts) != 0 {
+		if report.Hosts[0].Error != "" {
+			c.debug("got errors")
+			err = errors.New(fmt.Sprintf("unknown site: %v", report.Hosts[0].Error))
+			return
+		}
 	}
 
 	return
+}
+
+// callAPI does the main chunk of a call
+func (c *Client) callAPI(strURL string) (*http.Response, []byte, error) {
+
+	c.debug("strURL=%s", strURL)
+
+	req, err := http.NewRequest("GET", strURL, nil)
+	if err != nil {
+		log.Printf("error: req is nil: %v", err)
+		return nil, nil, errors.Wrap(err, "http.newrequest")
+	}
+
+	c.debug("req=%#v", req)
+	c.debug("clt=%#v", c.client)
+
+	resp, err := c.client.Do(req)
+	if err != nil {
+		c.verbose("err=%s", err.Error())
+		return nil, nil, errors.Wrap(err, "client.Do")
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "read body")
+	}
+
+	c.debug("resp=%#v, body=%s", resp, string(body))
+
+	if resp.StatusCode != http.StatusOK {
+		return resp, body, errors.Wrap(err, "NOK")
+	}
+
+	// Handle redirects
+	if resp.StatusCode == http.StatusFound {
+		return resp, body, fmt.Errorf("redirect")
+	}
+
+	c.debug("success: %s", string(body))
+	return resp, body, nil
 }
 
 // Version returns our internal API version
