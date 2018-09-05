@@ -167,15 +167,6 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 				// Next call succeed
 				break
 			}
-		} else if resp.StatusCode == http.StatusFound {
-			str := resp.Header["Location"][0]
-
-			c.debug("Got 302 to %s", str)
-
-			resp, body, err = c.callAPI(str)
-
-			c.verbose("resp was %v", resp)
-
 		} else {
 			return Report{}, errors.Wrapf(err, "bad status %v body %v", resp.Status, body)
 		}
@@ -223,11 +214,6 @@ func (c *Client) callAPI(strURL string) (*http.Response, []byte, error) {
 
 	if resp.StatusCode != http.StatusOK {
 		return resp, body, errors.Wrap(err, "NOK")
-	}
-
-	// Handle redirects
-	if resp.StatusCode == http.StatusFound {
-		return resp, body, fmt.Errorf("redirect")
 	}
 
 	c.debug("success: %s", string(body))
