@@ -66,7 +66,7 @@ type Handshake struct {
 
 // Host describe a single host
 type Host struct {
-	HOst      Site      `json:"host"`
+	Host      Site      `json:"host"`
 	Handshake Handshake `json:"handshake"`
 	Grade     Grade
 	Error     string
