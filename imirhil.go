@@ -102,6 +102,10 @@ func (c *Client) GetScore(site string) (score string, err error) {
 		score = "Z"
 		return
 	}
+	if len(full.Hosts) == 0 {
+		return "Z", fmt.Errorf("empty hosts")
+	}
+
 	c.debug("fullscore=%#v", full)
 	if full.Hosts[0].Error != "" {
 		c.debug("got errors")

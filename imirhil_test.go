@@ -201,6 +201,27 @@ func TestClient_GetScoreNoSite(t *testing.T) {
 	assert.Equal(t, "Z", grade)
 }
 
+func TestClient_GetScoreNoHosts(t *testing.T) {
+	defer gock.Off()
+
+	ft, err := ioutil.ReadFile("testdata/tls.imirhil.fr-empty.json")
+	assert.NoError(t, err)
+
+	gock.New(baseURL).
+		Get("/https/tls.imirhil.fr.json").
+		Reply(200).
+		BodyString(string(ft))
+
+	c := NewClient(Config{Timeout: 10, BaseURL: baseURL})
+
+	gock.InterceptClient(c.client)
+	defer gock.RestoreClient(c.client)
+
+	grade, err := c.GetScore("tls.imirhil.fr")
+	assert.Error(t, err)
+	assert.Equal(t, "Z", grade)
+}
+
 func TestClient_GetScoreDebug(t *testing.T) {
 	defer gock.Off()
 
