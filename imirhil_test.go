@@ -222,6 +222,50 @@ func TestClient_GetScoreNoHosts(t *testing.T) {
 	assert.Equal(t, "Z", grade)
 }
 
+func TestClient_GetScoreWithError(t *testing.T) {
+	defer gock.Off()
+
+	ft, err := ioutil.ReadFile("testdata/tls.imirhil.fr-error.json")
+	assert.NoError(t, err)
+
+	gock.New(baseURL).
+		Get("/https/tls.imirhil.fr.json").
+		Reply(200).
+		BodyString(string(ft))
+
+	c := NewClient(Config{Timeout: 10, BaseURL: baseURL})
+
+	gock.InterceptClient(c.client)
+	defer gock.RestoreClient(c.client)
+
+	grade, err := c.GetScore("tls.imirhil.fr")
+	assert.Error(t, err)
+	assert.Equal(t,"Z", grade)
+	assert.Equal(t,"unknown site: test for error", err.Error())
+}
+
+func TestClient_GetScoreWithErrorDebug(t *testing.T) {
+	defer gock.Off()
+
+	ft, err := ioutil.ReadFile("testdata/tls.imirhil.fr-error.json")
+	assert.NoError(t, err)
+
+	gock.New(baseURL).
+		Get("/https/tls.imirhil.fr.json").
+		Reply(200).
+		BodyString(string(ft))
+
+	c := NewClient(Config{Timeout: 10, BaseURL: baseURL, Log: 2})
+
+	gock.InterceptClient(c.client)
+	defer gock.RestoreClient(c.client)
+
+	grade, err := c.GetScore("tls.imirhil.fr")
+	assert.Error(t, err)
+	assert.Equal(t,"Z", grade)
+	assert.Equal(t,"unknown site: test for error", err.Error())
+}
+
 func TestClient_GetScoreDebug(t *testing.T) {
 	defer gock.Off()
 
