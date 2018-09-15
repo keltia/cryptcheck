@@ -136,7 +136,7 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 	resp, body, err := c.callAPI(str)
 
 	for {
-		if retry == DefaultRetry {
+		if retry >= DefaultRetry {
 			return Report{}, errors.Wrap(err, "retry expired")
 		}
 
