@@ -32,7 +32,7 @@ const (
 	APIVersion = "201809"
 
 	// MyVersion is the API version
-	MyVersion = "1.5.1"
+	MyVersion = "1.5.2"
 
 	// MyName is the name used for the configuration
 	MyName = "cryptcheck"
@@ -106,12 +106,6 @@ func (c *Client) GetScore(site string) (score string, err error) {
 	}
 
 	c.debug("fullscore=%#v", full)
-	if full.Hosts[0].Error != "" {
-		c.debug("got errors")
-		score = "Z"
-		err = errors.New(fmt.Sprintf("unknown site: %v", full.Hosts[0].Error))
-		return
-	}
 	score = full.Hosts[0].Grade.Rank
 	return
 }
@@ -123,6 +117,10 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 		body  []byte
 		str   string
 	)
+
+	if site == "" {
+		return Report{}, errors.Wrap(err, "empty site")
+	}
 
 	if c.refresh {
 		str = fmt.Sprintf("%s/%s/%s/%s", c.baseurl, typeURL, site, "refresh")
@@ -212,7 +210,7 @@ func (c *Client) callAPI(strURL string) (*http.Response, []byte, error) {
 
 	resp, err := c.client.Do(req)
 	if err != nil {
-		c.verbose("err=%s", err.Error())
+		c.debug("err=%s", err.Error())
 		return nil, nil, errors.Wrap(err, "client.Do")
 	}
 
@@ -224,7 +222,7 @@ func (c *Client) callAPI(strURL string) (*http.Response, []byte, error) {
 	c.debug("resp=%#v, body=%s", resp, string(body))
 
 	if resp.StatusCode != http.StatusOK {
-		return resp, body, errors.Wrap(err, "NOK")
+		return resp, body, fmt.Errorf("NOK code=%d", resp.StatusCode)
 	}
 
 	c.debug("success: %s", string(body))
