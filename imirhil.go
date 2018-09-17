@@ -118,6 +118,10 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 		str   string
 	)
 
+	if site == "" {
+		return Report{}, errors.Wrap(err, "empty site")
+	}
+
 	if c.refresh {
 		str = fmt.Sprintf("%s/%s/%s/%s", c.baseurl, typeURL, site, "refresh")
 	} else {

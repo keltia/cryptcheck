@@ -159,6 +159,15 @@ func TestClient_GetScore(t *testing.T) {
 	assert.Equal(t, "A+", grade)
 }
 
+func TestClient_GetScoreEmpty(t *testing.T) {
+	defer gock.Off()
+
+	grade, err := NewClient().GetScore("")
+	assert.Error(t, err)
+	assert.NotEmpty(t, grade)
+	assert.Equal(t, "Z", grade)
+}
+
 func TestClient_GetScoreVerbose(t *testing.T) {
 	defer gock.Off()
 
