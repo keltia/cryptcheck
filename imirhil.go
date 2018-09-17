@@ -134,12 +134,20 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 	c.debug("str=%s", str)
 
 	resp, body, err := c.callAPI(str)
+	if err != nil {
+		return Report{}, errors.Wrap(err, "err resp")
+	}
 
 	for {
 		if retry == DefaultRetry {
 			return Report{}, errors.Wrap(err, "retry expired")
 		}
 
+		if resp == nil {
+			retry++
+			c.debug("nil resp/loop")
+			continue
+		}
 		if resp.StatusCode == http.StatusOK {
 
 			c.debug("status OK")
