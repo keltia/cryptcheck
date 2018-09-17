@@ -173,7 +173,7 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 				if err != nil {
 					return Report{}, errors.Wrap(err, "pending error")
 				}
-				c.verbose("resp was %v", resp)
+				c.debug("resp was %v", resp)
 			} else {
 				// Next call succeed
 				break
