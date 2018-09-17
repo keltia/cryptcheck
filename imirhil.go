@@ -12,7 +12,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -33,7 +32,7 @@ const (
 	APIVersion = "201809"
 
 	// MyVersion is the API version
-	MyVersion = "1.5.0"
+	MyVersion = "1.5.1"
 
 	// MyName is the name used for the configuration
 	MyName = "cryptcheck"
@@ -102,6 +101,10 @@ func (c *Client) GetScore(site string) (score string, err error) {
 		score = "Z"
 		return
 	}
+	if len(full.Hosts) == 0 {
+		return "Z", fmt.Errorf("empty hosts")
+	}
+
 	c.debug("fullscore=%#v", full)
 	if full.Hosts[0].Error != "" {
 		c.debug("got errors")
@@ -130,12 +133,20 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 	c.debug("str=%s", str)
 
 	resp, body, err := c.callAPI(str)
+	if err != nil {
+		return Report{}, errors.Wrap(err, "err resp")
+	}
 
 	for {
 		if retry == DefaultRetry {
 			return Report{}, errors.Wrap(err, "retry expired")
 		}
 
+		if resp == nil {
+			retry++
+			c.debug("nil resp/loop")
+			continue
+		}
 		if resp.StatusCode == http.StatusOK {
 
 			c.debug("status OK")
@@ -162,7 +173,7 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 				if err != nil {
 					return Report{}, errors.Wrap(err, "pending error")
 				}
-				c.verbose("resp was %v", resp)
+				c.debug("resp was %v", resp)
 			} else {
 				// Next call succeed
 				break
@@ -192,7 +203,7 @@ func (c *Client) callAPI(strURL string) (*http.Response, []byte, error) {
 
 	req, err := http.NewRequest("GET", strURL, nil)
 	if err != nil {
-		log.Printf("error: req is nil: %v", err)
+		c.debug("error: req is nil: %v", err)
 		return nil, nil, errors.Wrap(err, "http.newrequest")
 	}
 
