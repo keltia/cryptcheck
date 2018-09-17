@@ -12,7 +12,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -204,7 +203,7 @@ func (c *Client) callAPI(strURL string) (*http.Response, []byte, error) {
 
 	req, err := http.NewRequest("GET", strURL, nil)
 	if err != nil {
-		log.Printf("error: req is nil: %v", err)
+		c.debug("error: req is nil: %v", err)
 		return nil, nil, errors.Wrap(err, "http.newrequest")
 	}
 
