@@ -222,7 +222,7 @@ func (c *Client) callAPI(strURL string) (*http.Response, []byte, error) {
 	c.debug("resp=%#v, body=%s", resp, string(body))
 
 	if resp.StatusCode != http.StatusOK {
-		return resp, body, errors.Wrap(err, "NOK")
+		return resp, body, fmt.Errorf("NOK code=%d", resp.StatusCode)
 	}
 
 	c.debug("success: %s", string(body))
