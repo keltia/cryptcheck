@@ -212,7 +212,7 @@ func (c *Client) callAPI(strURL string) (*http.Response, []byte, error) {
 
 	resp, err := c.client.Do(req)
 	if err != nil {
-		c.verbose("err=%s", err.Error())
+		c.debug("err=%s", err.Error())
 		return nil, nil, errors.Wrap(err, "client.Do")
 	}
 
