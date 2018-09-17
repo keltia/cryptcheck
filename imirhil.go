@@ -12,7 +12,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -33,7 +32,7 @@ const (
 	APIVersion = "201809"
 
 	// MyVersion is the API version
-	MyVersion = "1.5.0"
+	MyVersion = "1.5.2"
 
 	// MyName is the name used for the configuration
 	MyName = "cryptcheck"
@@ -107,12 +106,6 @@ func (c *Client) GetScore(site string) (score string, err error) {
 	}
 
 	c.debug("fullscore=%#v", full)
-	if full.Hosts[0].Error != "" {
-		c.debug("got errors")
-		score = "Z"
-		err = errors.New(fmt.Sprintf("unknown site: %v", full.Hosts[0].Error))
-		return
-	}
 	score = full.Hosts[0].Grade.Rank
 	return
 }
@@ -125,6 +118,10 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 		str   string
 	)
 
+	if site == "" {
+		return Report{}, errors.Wrap(err, "empty site")
+	}
+
 	if c.refresh {
 		str = fmt.Sprintf("%s/%s/%s/%s", c.baseurl, typeURL, site, "refresh")
 	} else {
@@ -134,12 +131,20 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 	c.debug("str=%s", str)
 
 	resp, body, err := c.callAPI(str)
+	if err != nil {
+		return Report{}, errors.Wrap(err, "err resp")
+	}
 
 	for {
 		if retry >= DefaultRetry {
 			return Report{}, errors.Wrap(err, "retry expired")
 		}
 
+		if resp == nil {
+			retry++
+			c.debug("nil resp/loop")
+			continue
+		}
 		if resp.StatusCode == http.StatusOK {
 
 			c.debug("status OK")
@@ -166,7 +171,7 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 				if err != nil {
 					return Report{}, errors.Wrap(err, "pending error")
 				}
-				c.verbose("resp was %v", resp)
+				c.debug("resp was %v", resp)
 			} else {
 				// Next call succeed
 				break
@@ -196,7 +201,7 @@ func (c *Client) callAPI(strURL string) (*http.Response, []byte, error) {
 
 	req, err := http.NewRequest("GET", strURL, nil)
 	if err != nil {
-		log.Printf("error: req is nil: %v", err)
+		c.debug("error: req is nil: %v", err)
 		return nil, nil, errors.Wrap(err, "http.newrequest")
 	}
 
@@ -205,7 +210,7 @@ func (c *Client) callAPI(strURL string) (*http.Response, []byte, error) {
 
 	resp, err := c.client.Do(req)
 	if err != nil {
-		c.verbose("err=%s", err.Error())
+		c.debug("err=%s", err.Error())
 		return nil, nil, errors.Wrap(err, "client.Do")
 	}
 
@@ -217,7 +222,7 @@ func (c *Client) callAPI(strURL string) (*http.Response, []byte, error) {
 	c.debug("resp=%#v, body=%s", resp, string(body))
 
 	if resp.StatusCode != http.StatusOK {
-		return resp, body, errors.Wrap(err, "NOK")
+		return resp, body, fmt.Errorf("NOK code=%d", resp.StatusCode)
 	}
 
 	c.debug("success: %s", string(body))
