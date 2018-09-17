@@ -338,7 +338,7 @@ func TestClient_GetDetailedReportRefresh(t *testing.T) {
 		Reply(200).
 		BodyString(string(ft))
 
-	c := NewClient(Config{Timeout: 10, BaseURL: baseURL, Refresh: true, Log: 2})
+	c := NewClient(Config{Timeout: 10, BaseURL: baseURL, Refresh: true})
 
 	gock.InterceptClient(c.client)
 	defer gock.RestoreClient(c.client)
@@ -503,7 +503,7 @@ func TestCallAPI4(t *testing.T) {
 		SetHeader("Location", baseURL+"/https/"+site+".json").
 		BodyString(string("<!DOCTYPE html>"))
 
-	c := NewClient(Config{Log: 2})
+	c := NewClient()
 
 	gock.InterceptClient(c.client)
 	defer gock.RestoreClient(c.client)
@@ -531,7 +531,7 @@ func TestCallAPI5(t *testing.T) {
 		Reply(404).
 		BodyString(string("<HTML>"))
 
-	c := NewClient(Config{Log: 2})
+	c := NewClient()
 
 	gock.InterceptClient(c.client)
 	defer gock.RestoreClient(c.client)
