@@ -322,6 +322,37 @@ func TestClient_GetDetailedReport(t *testing.T) {
 	assert.Equal(t, jr, r)
 }
 
+func TestClient_GetDetailedReportRefresh(t *testing.T) {
+	defer gock.Off()
+
+	ft, err := ioutil.ReadFile("testdata/tls.imirhil.fr.json")
+	assert.NoError(t, err)
+
+	gock.New(baseURL).
+		Get("/https/tls.imirhil.fr/refresh").
+		Reply(200).
+		BodyString(string(""))
+
+	gock.New(baseURL).
+		Get("/https/tls.imirhil.fr.json").
+		Reply(200).
+		BodyString(string(ft))
+
+	c := NewClient(Config{Timeout: 10, BaseURL: baseURL, Refresh: true, Log: 2})
+
+	gock.InterceptClient(c.client)
+	defer gock.RestoreClient(c.client)
+
+	var jr Report
+
+	err = json.Unmarshal(ft, &jr)
+	assert.NoError(t, err)
+
+	r, err := c.GetDetailedReport("tls.imirhil.fr")
+	assert.NoError(t, err)
+	assert.Equal(t, jr, r)
+}
+
 func TestClient_GetDetailedVerbose(t *testing.T) {
 	defer gock.Off()
 
@@ -430,6 +461,90 @@ func TestCallAPI2(t *testing.T) {
 
 	assert.NotNil(t, body)
 	assert.NotEmpty(t, body)
+}
+
+func TestCallAPI3(t *testing.T) {
+	defer gock.Off()
+
+	site := ""
+
+	gock.New(baseURL).
+		Get("/https/"+site+"/refresh").
+		Reply(200).
+		SetHeader("Location", baseURL+"/https/"+site+".json").
+		BodyString(string("<!DOCTYPE html>"))
+
+	c := NewClient()
+
+	gock.InterceptClient(c.client)
+	defer gock.RestoreClient(c.client)
+
+	str := "https://tls.imirhil.fr/https/" + site + "/refresh"
+	resp, body, err := c.callAPI(str)
+
+	require.NoError(t, err)
+	assert.Equal(t, "<!DOCTYPE html>", string(body))
+	assert.NotNil(t, resp)
+	assert.IsType(t, (*http.Response)(nil), resp)
+	assert.Equal(t, baseURL+"/https/"+site+".json", resp.Header.Get("Location"))
+
+	assert.NotNil(t, body)
+	assert.NotEmpty(t, body)
+}
+
+func TestCallAPI4(t *testing.T) {
+	defer gock.Off()
+
+	site := "../../.."
+
+	gock.New(baseURL).
+		Get("/https/"+site+"/refresh").
+		Reply(404).
+		SetHeader("Location", baseURL+"/https/"+site+".json").
+		BodyString(string("<!DOCTYPE html>"))
+
+	c := NewClient(Config{Log: 2})
+
+	gock.InterceptClient(c.client)
+	defer gock.RestoreClient(c.client)
+
+	str := "https://tls.imirhil.fr/https/" + site + "/refresh"
+	resp, body, err := c.callAPI(str)
+
+	require.Error(t, err)
+	assert.Equal(t, "<!DOCTYPE html>", string(body))
+	assert.NotNil(t, resp)
+	assert.IsType(t, (*http.Response)(nil), resp)
+	assert.Equal(t, baseURL+"/https/"+site+".json", resp.Header.Get("Location"))
+
+	assert.NotNil(t, body)
+	assert.NotEmpty(t, body)
+}
+
+func TestCallAPI5(t *testing.T) {
+	defer gock.Off()
+
+	site := "../../.."
+
+	gock.New("https://bad.imirhil.fr").
+		Get("/https/" + site + "/refresh").
+		Reply(404).
+		BodyString(string("<HTML>"))
+
+	c := NewClient(Config{Log: 2})
+
+	gock.InterceptClient(c.client)
+	defer gock.RestoreClient(c.client)
+
+	str := "https://bad.imirhil.fr/https/" + site + "/refresh"
+	resp, body, err := c.callAPI(str)
+
+	require.Error(t, err)
+	assert.NotNil(t, body)
+	assert.NotEmpty(t, string(body))
+	assert.Contains(t, "<HTML>", string(body))
+	assert.NotNil(t, resp)
+	assert.IsType(t, (*http.Response)(nil), resp)
 }
 
 func TestMyRedirect(t *testing.T) {
