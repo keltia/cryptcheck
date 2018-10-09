@@ -1,1 +1,18 @@
-{"_id":{"$oid":"5b8e92fdf371cdc0d7437a21"},"date":"2018-09-04T14:13:17.539Z","hosts":[{"host":{"name":"tls.imirhil.com","ip":null,"port":443},"error":"Unable to resolve tls.imirhil.com"}],"host":"tls.imirhil.com","port":null}
+{
+	"_id": {
+		"$oid": "5b8e92fdf371cdc0d7437a21"
+	},
+	"date": "2018-09-04T14:13:17.539Z",
+	"hosts": [
+		{
+			"host": {
+				"name": "tls.imirhil.com",
+				"ip": null,
+				"port": 443
+			},
+			"error": "Unable to resolve tls.imirhil.com"
+		}
+	],
+	"host": "tls.imirhil.com",
+	"port": null
+}
