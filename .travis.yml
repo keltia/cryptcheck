@@ -10,7 +10,9 @@ branches:
   only:
   - develop
   - master
+env:
+  - GO111MODULE=on
 script:
-  - env GO111MODULE=on make
-  - env GO111MODULE=on make test
-  - env GO111MODULE=on make windows
+  - make
+  - make test
+  - make windows
