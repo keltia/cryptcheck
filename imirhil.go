@@ -186,7 +186,7 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 	if len(report.Hosts) != 0 {
 		if report.Hosts[0].Error != "" {
 			c.debug("got errors")
-			err = errors.New(fmt.Sprintf("unknown site: %v", report.Hosts[0].Error))
+			err = errors.New(fmt.Sprintf("%v", report.Hosts[0].Error))
 			return
 		}
 	}
