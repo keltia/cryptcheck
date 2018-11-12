@@ -272,7 +272,7 @@ func TestClient_GetScoreWithErrorDebug(t *testing.T) {
 	grade, err := c.GetScore("tls.imirhil.fr")
 	assert.Error(t, err)
 	assert.Equal(t, "Z", grade)
-	assert.Equal(t, "unknown site: test for error", err.Error())
+	assert.Equal(t, "test for error", err.Error())
 }
 
 func TestClient_GetScoreDebug(t *testing.T) {
