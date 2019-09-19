@@ -28,7 +28,7 @@ const (
 	DefaultWait = 10 * time.Second
 
 	// APIVersion is the cryptcheck API v1 as observed
-	APIVersion = "201809"
+	APIVersion = "201909"
 
 	// MyVersion is the API version
 	MyVersion = "1.5.2"
@@ -97,12 +97,12 @@ func (c *Client) GetScore(site string) (score string, err error) {
 		score = "Z"
 		return
 	}
-	if len(full.Hosts) == 0 {
+	if len(full.Result.Hosts) == 0 {
 		return "Z", fmt.Errorf("empty hosts")
 	}
 
 	c.debug("fullscore=%#v", full)
-	score = full.Hosts[0].Grade.Rank
+	score = full.Result.Hosts[0].Grade.Rank
 	return
 }
 
@@ -157,7 +157,13 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 				continue
 			}
 
-			if strings.Contains(string(body), "pending") {
+			var r Report
+
+			if err := json.Unmarshal(resp.Body(), &r); err != nil {
+				return Report{}, errors.Wrapf(err, "bad json: %s", body)
+			}
+
+			if r.Pending {
 				retry++
 				time.Sleep(10 * time.Second)
 
@@ -177,10 +183,10 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 	c.debug("success: %s", string(body))
 	err = json.Unmarshal(body, &report)
 
-	if len(report.Hosts) != 0 {
-		if report.Hosts[0].Error != "" {
+	if len(report.Result.Hosts) != 0 {
+		if report.Result.Hosts[0].Error != "" {
 			c.debug("got errors")
-			err = errors.New(fmt.Sprintf("%v", report.Hosts[0].Error))
+			err = errors.New(fmt.Sprintf("%v", report.Result.Hosts[0].Error))
 			return
 		}
 	}
