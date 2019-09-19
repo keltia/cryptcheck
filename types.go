@@ -17,6 +17,8 @@ package cryptcheck
 
 import (
 	"time"
+
+	"github.com/go-resty/resty/v2"
 )
 
 // Key describes a single key
@@ -95,12 +97,11 @@ type Result struct {
 
 // Client is used to store proxyauth & other internal state
 type Client struct {
-	baseurl   string
-	proxyauth string
-	level     int
-	client    *http.Client
-	timeout   time.Duration
-	refresh   bool
+	baseurl string
+	level   int
+	client  *resty.Client
+	timeout time.Duration
+	refresh bool
 }
 
 // Config is for giving options to NewClient
