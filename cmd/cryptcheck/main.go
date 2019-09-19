@@ -76,11 +76,11 @@ func main() {
 		fmt.Printf("%s\n", jr)
 	} else {
 
-		if len(report.Hosts) == 0 {
+		if len(report.Result.Hosts) == 0 {
 			log.Fatalf("No endpoint for %s.", site)
 		}
 
-		grade := report.Hosts[0].Grade.Rank
-		fmt.Printf("Grade for '%s' is %s (Date: %s)\n", site, grade, report.Date.Local())
+		grade := report.Result.Hosts[0].Grade.Rank
+		fmt.Printf("Grade for '%s' is %s (Date: %s)\n", site, grade, report.Result.Date.Local())
 	}
 }
