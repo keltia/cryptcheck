@@ -7,12 +7,12 @@ package cryptcheck
 import (
 	"encoding/json"
 	"io/ioutil"
-	"net/http"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
 
+	"github.com/go-resty/resty/v2"
 	"github.com/h2non/gock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -151,8 +151,8 @@ func TestClient_GetScore(t *testing.T) {
 
 	c := NewClient(Config{Timeout: 10, BaseURL: baseURL})
 
-	gock.InterceptClient(c.client)
-	defer gock.RestoreClient(c.client)
+	gock.InterceptClient(c.client.GetClient())
+	defer gock.RestoreClient(c.client.GetClient())
 
 	grade, err := c.GetScore("tls.imirhil.fr")
 	assert.NoError(t, err)
@@ -181,8 +181,8 @@ func TestClient_GetScoreVerbose(t *testing.T) {
 
 	c := NewClient(Config{Timeout: 10, Log: 1, BaseURL: baseURL})
 
-	gock.InterceptClient(c.client)
-	defer gock.RestoreClient(c.client)
+	gock.InterceptClient(c.client.GetClient())
+	defer gock.RestoreClient(c.client.GetClient())
 
 	grade, err := c.GetScore("tls.imirhil.fr")
 	assert.NoError(t, err)
@@ -202,8 +202,8 @@ func TestClient_GetScoreNoSite(t *testing.T) {
 
 	c := NewClient(Config{Timeout: 10, BaseURL: baseURL})
 
-	gock.InterceptClient(c.client)
-	defer gock.RestoreClient(c.client)
+	gock.InterceptClient(c.client.GetClient())
+	defer gock.RestoreClient(c.client.GetClient())
 
 	grade, err := c.GetScore("tls.imirhil.com")
 	assert.Error(t, err)
@@ -223,8 +223,8 @@ func TestClient_GetScoreNoHosts(t *testing.T) {
 
 	c := NewClient(Config{Timeout: 10, BaseURL: baseURL})
 
-	gock.InterceptClient(c.client)
-	defer gock.RestoreClient(c.client)
+	gock.InterceptClient(c.client.GetClient())
+	defer gock.RestoreClient(c.client.GetClient())
 
 	grade, err := c.GetScore("tls.imirhil.fr")
 	assert.Error(t, err)
@@ -244,8 +244,8 @@ func TestClient_GetScoreWithError(t *testing.T) {
 
 	c := NewClient(Config{Timeout: 10, BaseURL: baseURL})
 
-	gock.InterceptClient(c.client)
-	defer gock.RestoreClient(c.client)
+	gock.InterceptClient(c.client.GetClient())
+	defer gock.RestoreClient(c.client.GetClient())
 
 	grade, err := c.GetScore("tls.imirhil.fr")
 	assert.Error(t, err)
@@ -266,8 +266,8 @@ func TestClient_GetScoreWithErrorDebug(t *testing.T) {
 
 	c := NewClient(Config{Timeout: 10, BaseURL: baseURL, Log: 2})
 
-	gock.InterceptClient(c.client)
-	defer gock.RestoreClient(c.client)
+	gock.InterceptClient(c.client.GetClient())
+	defer gock.RestoreClient(c.client.GetClient())
 
 	grade, err := c.GetScore("tls.imirhil.fr")
 	assert.Error(t, err)
@@ -288,8 +288,8 @@ func TestClient_GetScoreDebug(t *testing.T) {
 
 	c := NewClient(Config{Timeout: 10, Log: 2, BaseURL: baseURL})
 
-	gock.InterceptClient(c.client)
-	defer gock.RestoreClient(c.client)
+	gock.InterceptClient(c.client.GetClient())
+	defer gock.RestoreClient(c.client.GetClient())
 
 	grade, err := c.GetScore("tls.imirhil.fr")
 	assert.NoError(t, err)
@@ -309,8 +309,8 @@ func TestClient_GetDetailedReport(t *testing.T) {
 
 	c := NewClient(Config{Timeout: 10, BaseURL: baseURL})
 
-	gock.InterceptClient(c.client)
-	defer gock.RestoreClient(c.client)
+	gock.InterceptClient(c.client.GetClient())
+	defer gock.RestoreClient(c.client.GetClient())
 
 	var jr Report
 
@@ -340,8 +340,8 @@ func TestClient_GetDetailedReportRefresh(t *testing.T) {
 
 	c := NewClient(Config{Timeout: 10, BaseURL: baseURL, Refresh: true})
 
-	gock.InterceptClient(c.client)
-	defer gock.RestoreClient(c.client)
+	gock.InterceptClient(c.client.GetClient())
+	defer gock.RestoreClient(c.client.GetClient())
 
 	var jr Report
 
@@ -366,8 +366,8 @@ func TestClient_GetDetailedVerbose(t *testing.T) {
 
 	c := NewClient(Config{Timeout: 10, Log: 1, BaseURL: baseURL})
 
-	gock.InterceptClient(c.client)
-	defer gock.RestoreClient(c.client)
+	gock.InterceptClient(c.client.GetClient())
+	defer gock.RestoreClient(c.client.GetClient())
 
 	var jr Report
 
@@ -392,8 +392,8 @@ func TestClient_GetDetailedNoSite(t *testing.T) {
 
 	c := NewClient(Config{Timeout: 10, BaseURL: baseURL})
 
-	gock.InterceptClient(c.client)
-	defer gock.RestoreClient(c.client)
+	gock.InterceptClient(c.client.GetClient())
+	defer gock.RestoreClient(c.client.GetClient())
 
 	var jr Report
 
@@ -420,15 +420,15 @@ func TestCallAPI(t *testing.T) {
 
 	c := NewClient()
 
-	gock.InterceptClient(c.client)
-	defer gock.RestoreClient(c.client)
+	gock.InterceptClient(c.client.GetClient())
+	defer gock.RestoreClient(c.client.GetClient())
 
 	str := "https://tls.imirhil.fr/https/" + site + ".json"
 	resp, body, err := c.callAPI(str)
 
 	require.NoError(t, err)
 	assert.NotNil(t, resp)
-	assert.IsType(t, (*http.Response)(nil), resp)
+	assert.IsType(t, (*resty.Response)(nil), resp)
 
 	assert.NotNil(t, body)
 	assert.NotEmpty(t, body)
@@ -447,8 +447,8 @@ func TestCallAPI2(t *testing.T) {
 
 	c := NewClient()
 
-	gock.InterceptClient(c.client)
-	defer gock.RestoreClient(c.client)
+	gock.InterceptClient(c.client.GetClient())
+	defer gock.RestoreClient(c.client.GetClient())
 
 	str := "https://tls.imirhil.fr/https/" + site + "/refresh"
 	resp, body, err := c.callAPI(str)
@@ -456,8 +456,10 @@ func TestCallAPI2(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "HTML body we do not care about", string(body))
 	assert.NotNil(t, resp)
-	assert.IsType(t, (*http.Response)(nil), resp)
-	assert.Equal(t, baseURL+"/https/"+site+".json", resp.Header.Get("Location"))
+	assert.IsType(t, (*resty.Response)(nil), resp)
+
+	h := resp.Header()
+	assert.Equal(t, baseURL+"/https/"+site+".json", h.Get("Location"))
 
 	assert.NotNil(t, body)
 	assert.NotEmpty(t, body)
@@ -476,8 +478,8 @@ func TestCallAPI3(t *testing.T) {
 
 	c := NewClient()
 
-	gock.InterceptClient(c.client)
-	defer gock.RestoreClient(c.client)
+	gock.InterceptClient(c.client.GetClient())
+	defer gock.RestoreClient(c.client.GetClient())
 
 	str := "https://tls.imirhil.fr/https/" + site + "/refresh"
 	resp, body, err := c.callAPI(str)
@@ -485,8 +487,9 @@ func TestCallAPI3(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "<!DOCTYPE html>", string(body))
 	assert.NotNil(t, resp)
-	assert.IsType(t, (*http.Response)(nil), resp)
-	assert.Equal(t, baseURL+"/https/"+site+".json", resp.Header.Get("Location"))
+	assert.IsType(t, (*resty.Response)(nil), resp)
+	h := resp.Header()
+	assert.Equal(t, baseURL+"/https/"+site+".json", h.Get("Location"))
 
 	assert.NotNil(t, body)
 	assert.NotEmpty(t, body)
@@ -505,8 +508,8 @@ func TestCallAPI4(t *testing.T) {
 
 	c := NewClient()
 
-	gock.InterceptClient(c.client)
-	defer gock.RestoreClient(c.client)
+	gock.InterceptClient(c.client.GetClient())
+	defer gock.RestoreClient(c.client.GetClient())
 
 	str := "https://tls.imirhil.fr/https/" + site + "/refresh"
 	resp, body, err := c.callAPI(str)
@@ -514,8 +517,9 @@ func TestCallAPI4(t *testing.T) {
 	require.Error(t, err)
 	assert.Equal(t, "<!DOCTYPE html>", string(body))
 	assert.NotNil(t, resp)
-	assert.IsType(t, (*http.Response)(nil), resp)
-	assert.Equal(t, baseURL+"/https/"+site+".json", resp.Header.Get("Location"))
+	assert.IsType(t, (*resty.Response)(nil), resp)
+	h := resp.Header()
+	assert.Equal(t, baseURL+"/https/"+site+".json", h.Get("Location"))
 
 	assert.NotNil(t, body)
 	assert.NotEmpty(t, body)
@@ -533,8 +537,8 @@ func TestCallAPI5(t *testing.T) {
 
 	c := NewClient()
 
-	gock.InterceptClient(c.client)
-	defer gock.RestoreClient(c.client)
+	gock.InterceptClient(c.client.GetClient())
+	defer gock.RestoreClient(c.client.GetClient())
 
 	str := "https://bad.imirhil.fr/https/" + site + "/refresh"
 	resp, body, err := c.callAPI(str)
@@ -544,7 +548,7 @@ func TestCallAPI5(t *testing.T) {
 	assert.NotEmpty(t, string(body))
 	assert.Contains(t, "<HTML>", string(body))
 	assert.NotNil(t, resp)
-	assert.IsType(t, (*http.Response)(nil), resp)
+	assert.IsType(t, (*resty.Response)(nil), resp)
 }
 
 func TestMyRedirect(t *testing.T) {
@@ -555,5 +559,5 @@ func TestMyRedirect(t *testing.T) {
 func TestVersion(t *testing.T) {
 	v := Version()
 	require.NotEmpty(t, v)
-	assert.Equal(t, "201809", v)
+	assert.Equal(t, "201909", v)
 }
