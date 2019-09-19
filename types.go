@@ -1,6 +1,6 @@
 // types.go
 //
-// Copyright 2018 © by Ollivier Robert <roberto@keltia.net>
+// Copyright 2018-2019 © by Ollivier Robert <roberto@keltia.net>
 
 // v1 on tls.imrhil.fr
 

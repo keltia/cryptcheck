@@ -1,6 +1,6 @@
 // imirhil.go
 //
-// Copyright 2018 © by Ollivier Robert <roberto@keltia.net>
+// Copyright 2018-1019 © by Ollivier Robert <roberto@keltia.net>
 
 /*
   This file contains the datatypes used by tls.imirhil.fr
