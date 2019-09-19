@@ -11,12 +11,11 @@ package cryptcheck // import "github.com/keltia/cryptcheck"
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
-	"strings"
+	"os"
 	"time"
 
-	"github.com/keltia/proxy"
+	"github.com/go-resty/resty/v2"
 	"github.com/pkg/errors"
 )
 
@@ -81,15 +80,12 @@ func NewClient(cnf ...Config) *Client {
 		c.debug("got cnf: %#v", cnf[0])
 	}
 
-	// for informational purposes, ErrNoAuth is a ignorable error
-	c.proxyauth, _ = proxy.SetupProxyAuth()
-
-	_, trsp := proxy.SetupTransport(c.baseurl)
-	c.client = &http.Client{
-		Transport:     trsp,
-		Timeout:       c.timeout,
-		CheckRedirect: myRedirect,
+	c.client = resty.New().SetTimeout(DefaultWait)
+	proxy := os.Getenv("http_proxy")
+	if proxy != "" {
+		c.client.SetProxy(proxy)
 	}
+
 	c.debug("cryptcheck: c=%#v", c)
 	return c
 }
@@ -128,8 +124,6 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 		str = fmt.Sprintf("%s/%s/%s%s", c.baseurl, typeURL, site, ext)
 	}
 
-	c.debug("str=%s", str)
-
 	resp, body, err := c.callAPI(str)
 	if err != nil {
 		return Report{}, errors.Wrap(err, "err resp")
@@ -145,7 +139,7 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 			c.debug("nil resp/loop")
 			continue
 		}
-		if resp.StatusCode == http.StatusOK {
+		if resp.StatusCode() == http.StatusOK {
 
 			c.debug("status OK")
 
@@ -195,33 +189,25 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 }
 
 // callAPI does the main chunk of a call
-func (c *Client) callAPI(strURL string) (*http.Response, []byte, error) {
+func (c *Client) callAPI(strURL string) (*resty.Response, []byte, error) {
 
 	c.debug("strURL=%s", strURL)
-
-	req, err := http.NewRequest("GET", strURL, nil)
-	if err != nil {
-		c.debug("error: req is nil: %v", err)
-		return nil, nil, errors.Wrap(err, "http.newrequest")
-	}
-
-	c.debug("req=%#v", req)
 	c.debug("clt=%#v", c.client)
 
-	resp, err := c.client.Do(req)
+	resp, err := c.client.R().
+		SetHeader("User-Agent", fmt.Sprintf("%s/%s", MyName, MyVersion)).
+		Get(strURL)
+
 	if err != nil {
 		c.debug("err=%s", err.Error())
 		return nil, nil, errors.Wrap(err, "client.Do")
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, nil, errors.Wrap(err, "read body")
-	}
+	body := resp.Body()
 
 	c.debug("resp=%#v, body=%s", resp, string(body))
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode() != http.StatusOK {
 		return resp, body, fmt.Errorf("NOK code=%d", resp.StatusCode)
 	}
 
