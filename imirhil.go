@@ -177,7 +177,7 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 				break
 			}
 		} else {
-			return Report{}, errors.Wrapf(err, "bad status %v body %v", resp.Status, body)
+			return Report{}, errors.Wrapf(err, "bad status %v body %v", resp.Status(), body)
 		}
 	}
 	c.debug("success: %s", string(body))
@@ -214,7 +214,7 @@ func (c *Client) callAPI(strURL string) (*resty.Response, []byte, error) {
 	c.debug("resp=%#v, body=%s", resp, string(body))
 
 	if resp.StatusCode() != http.StatusOK {
-		return resp, body, fmt.Errorf("NOK code=%d", resp.StatusCode)
+		return resp, body, fmt.Errorf("NOK code=%d", resp.StatusCode())
 	}
 
 	c.debug("success: %s", string(body))
