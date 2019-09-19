@@ -1,9 +1,9 @@
 {
-    "_id": {
-        "$oid": "596b54ca2525939a3b340631"
-    },
+    "_id": "596b54ca2525939a3b340631",
     "date": "2018-05-04T01:28:20.504Z",
-    "hosts": [],
-    "host": "tls.imirhil.fr",
-    "port": null
+    "result: {
+      hosts": [],
+      "host": "tls.imirhil.fr",
+      "port": null
+    }
 }
