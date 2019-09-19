@@ -1,6 +1,6 @@
 // imirhil.go
 //
-// Copyright 2018 © by Ollivier Robert <roberto@keltia.net>
+// Copyright 2018-1019 © by Ollivier Robert <roberto@keltia.net>
 
 /*
   This file contains the datatypes used by tls.imirhil.fr
@@ -11,12 +11,11 @@ package cryptcheck // import "github.com/keltia/cryptcheck"
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
-	"strings"
+	"os"
 	"time"
 
-	"github.com/keltia/proxy"
+	"github.com/go-resty/resty/v2"
 	"github.com/pkg/errors"
 )
 
@@ -29,7 +28,7 @@ const (
 	DefaultWait = 10 * time.Second
 
 	// APIVersion is the cryptcheck API v1 as observed
-	APIVersion = "201809"
+	APIVersion = "201909"
 
 	// MyVersion is the API version
 	MyVersion = "1.5.2"
@@ -81,15 +80,12 @@ func NewClient(cnf ...Config) *Client {
 		c.debug("got cnf: %#v", cnf[0])
 	}
 
-	// for informational purposes, ErrNoAuth is a ignorable error
-	c.proxyauth, _ = proxy.SetupProxyAuth()
-
-	_, trsp := proxy.SetupTransport(c.baseurl)
-	c.client = &http.Client{
-		Transport:     trsp,
-		Timeout:       c.timeout,
-		CheckRedirect: myRedirect,
+	c.client = resty.New().SetTimeout(DefaultWait)
+	proxy := os.Getenv("http_proxy")
+	if proxy != "" {
+		c.client.SetProxy(proxy)
 	}
+
 	c.debug("cryptcheck: c=%#v", c)
 	return c
 }
@@ -101,12 +97,12 @@ func (c *Client) GetScore(site string) (score string, err error) {
 		score = "Z"
 		return
 	}
-	if len(full.Hosts) == 0 {
+	if len(full.Result.Hosts) == 0 {
 		return "Z", fmt.Errorf("empty hosts")
 	}
 
 	c.debug("fullscore=%#v", full)
-	score = full.Hosts[0].Grade.Rank
+	score = full.Result.Hosts[0].Grade.Rank
 	return
 }
 
@@ -128,8 +124,6 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 		str = fmt.Sprintf("%s/%s/%s%s", c.baseurl, typeURL, site, ext)
 	}
 
-	c.debug("str=%s", str)
-
 	resp, body, err := c.callAPI(str)
 	if err != nil {
 		return Report{}, errors.Wrap(err, "err resp")
@@ -145,7 +139,7 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 			c.debug("nil resp/loop")
 			continue
 		}
-		if resp.StatusCode == http.StatusOK {
+		if resp.StatusCode() == http.StatusOK {
 
 			c.debug("status OK")
 
@@ -163,7 +157,13 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 				continue
 			}
 
-			if strings.Contains(string(body), "pending") {
+			var r Report
+
+			if err := json.Unmarshal(resp.Body(), &r); err != nil {
+				return Report{}, errors.Wrapf(err, "bad json: %s", body)
+			}
+
+			if r.Pending {
 				retry++
 				time.Sleep(10 * time.Second)
 
@@ -177,16 +177,16 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 				break
 			}
 		} else {
-			return Report{}, errors.Wrapf(err, "bad status %v body %v", resp.Status, body)
+			return Report{}, errors.Wrapf(err, "bad status %v body %v", resp.Status(), body)
 		}
 	}
 	c.debug("success: %s", string(body))
 	err = json.Unmarshal(body, &report)
 
-	if len(report.Hosts) != 0 {
-		if report.Hosts[0].Error != "" {
+	if len(report.Result.Hosts) != 0 {
+		if report.Result.Hosts[0].Error != "" {
 			c.debug("got errors")
-			err = errors.New(fmt.Sprintf("%v", report.Hosts[0].Error))
+			err = errors.New(fmt.Sprintf("%v", report.Result.Hosts[0].Error))
 			return
 		}
 	}
@@ -195,34 +195,26 @@ func (c *Client) GetDetailedReport(site string) (report Report, err error) {
 }
 
 // callAPI does the main chunk of a call
-func (c *Client) callAPI(strURL string) (*http.Response, []byte, error) {
+func (c *Client) callAPI(strURL string) (*resty.Response, []byte, error) {
 
 	c.debug("strURL=%s", strURL)
-
-	req, err := http.NewRequest("GET", strURL, nil)
-	if err != nil {
-		c.debug("error: req is nil: %v", err)
-		return nil, nil, errors.Wrap(err, "http.newrequest")
-	}
-
-	c.debug("req=%#v", req)
 	c.debug("clt=%#v", c.client)
 
-	resp, err := c.client.Do(req)
+	resp, err := c.client.R().
+		SetHeader("User-Agent", fmt.Sprintf("%s/%s", MyName, MyVersion)).
+		Get(strURL)
+
 	if err != nil {
 		c.debug("err=%s", err.Error())
 		return nil, nil, errors.Wrap(err, "client.Do")
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, nil, errors.Wrap(err, "read body")
-	}
+	body := resp.Body()
 
 	c.debug("resp=%#v, body=%s", resp, string(body))
 
-	if resp.StatusCode != http.StatusOK {
-		return resp, body, fmt.Errorf("NOK code=%d", resp.StatusCode)
+	if resp.StatusCode() != http.StatusOK {
+		return resp, body, fmt.Errorf("NOK code=%d", resp.StatusCode())
 	}
 
 	c.debug("success: %s", string(body))

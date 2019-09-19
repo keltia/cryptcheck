@@ -1,18 +1,22 @@
 {
-	"_id": {
-		"$oid": "5b8e92fdf371cdc0d7437a21"
-	},
-	"date": "2018-09-04T14:13:17.539Z",
-	"hosts": [
-		{
-			"host": {
-				"name": "tls.imirhil.com",
-				"ip": null,
-				"port": 443
-			},
-			"error": "Unable to resolve tls.imirhil.com"
-		}
-	],
-	"host": "tls.imirhil.com",
-	"port": null
+  "id": "21d6e3a5-5905-4ff3-92d0-6bdc411e669a",
+  "service": "https",
+  "host": "tls.imirhil.com",
+  "port": 443,
+  "pending": false,
+  "result": {
+    "date": "2019-09-19T13:31:49.972+00:00",
+    "hosts": [
+      {
+        "host": {
+          "ip": null,
+          "name": "tls.imirhil.com",
+          "port": 443
+        },
+        "error": "Unable to resolve tls.imirhil.com"
+      }
+    ]
+  },
+  "created_at": "2019-09-19T13:31:49.945Z",
+  "updated_at": "2019-09-19T13:31:49.979Z"
 }
