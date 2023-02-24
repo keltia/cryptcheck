@@ -8,7 +8,7 @@ require (
 	github.com/pkg/errors v0.8.1
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/testify v1.2.1
-	golang.org/x/net v0.0.0-20190918130420-a8b05e9114ab // indirect
+	golang.org/x/net v0.7.0 // indirect
 )
 
 go 1.13
